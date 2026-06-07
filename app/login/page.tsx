@@ -1,6 +1,6 @@
 import { redirect } from 'next/navigation';
 import { getSession } from '@/lib/auth/session';
-import { isCloudMode } from '@/lib/repo';
+import { isCloudMode, isDevLoginAllowed } from '@/lib/repo';
 import { LoginForm } from '@/components/login-form';
 
 export const dynamic = 'force-dynamic';
@@ -8,5 +8,5 @@ export const dynamic = 'force-dynamic';
 export default async function LoginPage() {
   const session = await getSession();
   if (session) redirect('/dashboard');
-  return <LoginForm cloudMode={isCloudMode()} />;
+  return <LoginForm cloudMode={isCloudMode() && !isDevLoginAllowed()} />;
 }

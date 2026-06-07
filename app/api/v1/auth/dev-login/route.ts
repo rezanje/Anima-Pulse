@@ -1,13 +1,13 @@
 import { z } from 'zod';
 import { ok, fail, handle } from '@/lib/http';
 import { encodeSession, devUserIdForRole, SESSION_COOKIE } from '@/lib/auth/session';
-import { isCloudMode } from '@/lib/repo';
+import { isDevLoginAllowed } from '@/lib/repo';
 
 const bodySchema = z.object({ role: z.enum(['staff', 'manager', 'admin']) });
 
 export async function POST(req: Request) {
   return handle(async () => {
-    if (isCloudMode()) return fail(403, 'dev_login_disabled');
+    if (!isDevLoginAllowed()) return fail(403, 'dev_login_disabled');
     const json = await req.json().catch(() => null);
     const parsed = bodySchema.safeParse(json);
     if (!parsed.success) return fail(400, 'invalid_role');

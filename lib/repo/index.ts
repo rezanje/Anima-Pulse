@@ -24,4 +24,9 @@ export function isCloudMode(): boolean {
   return Boolean(process.env.SUPABASE_URL && process.env.SUPABASE_SERVICE_ROLE_KEY);
 }
 
+/** True when dev-login is explicitly allowed even in cloud mode (set ALLOW_DEV_LOGIN=true). */
+export function isDevLoginAllowed(): boolean {
+  return !isCloudMode() || process.env.ALLOW_DEV_LOGIN === 'true';
+}
+
 export * from './types';
