@@ -1784,3 +1784,6 @@ a { color: var(--accent); text-decoration: none; }
 .login-role-grid { display: flex; flex-direction: column; gap: 10px; margin-top: 6px; }
 .login-role { justify-content: space-between !important; text-transform: capitalize; }
 .login-role-name { font-weight: 500; }
+
+/* Team summary table (5 cols, repo TeamSummaryRow) */
+.t-table-summary .t-row { grid-template-columns: 2.4fr 1fr 1fr 1fr 1.2fr; }
