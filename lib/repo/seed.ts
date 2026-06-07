@@ -24,6 +24,14 @@ export const DEFAULT_USER_BY_ROLE: Record<'staff' | 'manager' | 'admin', string>
   admin: 'u07',
 };
 
+// default user EMAIL per role — stable across MockRepo (u01..) and SupabaseRepo (UUIDs).
+// dev-login resolves the real user id from the active repo via getUserByEmail.
+export const DEFAULT_EMAIL_BY_ROLE: Record<'staff' | 'manager' | 'admin', string> = {
+  staff: 'adit@animacompanion.com',
+  manager: 'reza@animacompanion.com',
+  admin: 'devi@animacompanion.com',
+};
+
 // 8 ER history points per staff (oldest → newest)
 export const SEED_ER_HISTORY: Record<string, number[]> = {
   u01: [4.2, 5.1, 4.8, 6.3, 5.9, 7.1, 6.8, 8.2],
