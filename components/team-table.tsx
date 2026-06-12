@@ -4,6 +4,7 @@
 // Sortable + period filter + CSV export. Manager/Admin only (page guards).
 // ============================================================
 import { useMemo, useState } from 'react';
+import Link from 'next/link';
 import { I } from '@/components/icons';
 import { Avatar, Button, Tabs, StatusPill, TrendDelta, Toast } from '@/components/widgets';
 import { fmtNum } from '@/lib/format';
@@ -111,13 +112,13 @@ export function TeamTable({ initialRows, role }: { initialRows: TeamSummaryRow[]
           </div>
           {sorted.map((r) => (
             <div key={r.user.id} className="t-row">
-              <span className="t-cell-name">
+              <Link href={`/team/${r.user.id}`} className="t-cell-name" style={{ textDecoration: 'none', color: 'inherit', display: 'flex', alignItems: 'center' }}>
                 <Avatar user={r.user} size={32} />
                 <span>
                   <span className="t-name">{r.user.name}</span>
                   <span className="t-handle">{r.user.handle}</span>
                 </span>
-              </span>
+              </Link>
               <span className="mono-num t-cell-num">{r.count}</span>
               <span className="mono-num t-cell-num t-cell-er">{r.avgER.toFixed(2)}<span className="t-pct">%</span></span>
               <span className="t-cell-trend"><TrendDelta value={r.trend} /></span>

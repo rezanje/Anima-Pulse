@@ -17,6 +17,9 @@ export interface User {
   avatar: string; // initials
   joined: string; // YYYY-MM
   isActive: boolean;
+  workLat?: number | null;
+  workLng?: number | null;
+  workRadius?: number | null;
 }
 
 export interface Attendance {
@@ -163,10 +166,11 @@ export interface Repo {
   getUserByEmail(email: string): Promise<User | null>;
   updateUserRole(id: string, role: Role): Promise<User>;
   setUserActive(id: string, active: boolean): Promise<User>;
+  updateUserLocation(id: string, lat: number | null, lng: number | null, radius: number | null): Promise<User>;
 
   // attendance
   getTodayAttendance(userId: string): Promise<Attendance | null>;
-  clockIn(userId: string, ip?: string): Promise<Attendance>; // throws 'already_clocked_in'
+  clockIn(userId: string, ip?: string, lat?: number, lng?: number): Promise<Attendance>; // throws 'already_clocked_in' | 'outside_radius'
   clockOut(userId: string): Promise<Attendance>; // throws 'not_clocked_in' | 'already_clocked_out'
   listAttendance(userId: string, month: number, year: number): Promise<Attendance[]>;
   attendancePct(userId: string): Promise<{ ontime: number; late: number; absent: number }>;

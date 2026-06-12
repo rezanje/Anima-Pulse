@@ -47,6 +47,20 @@ function wibTimeToIso(hhmm: string): string {
   return new Date(utc).toISOString();
 }
 
+function getDistance(lat1: number, lon1: number, lat2: number, lon2: number): number {
+  const R = 6371e3; // meters
+  const p1 = lat1 * Math.PI / 180;
+  const p2 = lat2 * Math.PI / 180;
+  const dp = (lat2 - lat1) * Math.PI / 180;
+  const dl = (lon2 - lon1) * Math.PI / 180;
+
+  const a = Math.sin(dp / 2) * Math.sin(dp / 2) +
+            Math.cos(p1) * Math.cos(p2) *
+            Math.sin(dl / 2) * Math.sin(dl / 2);
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+  return R * c;
+}
+
 function seedStore(): Store {
   const today = todayWIB();
   const attendances: Attendance[] = Object.entries(SEED_TODAY_ATTENDANCE)
@@ -120,13 +134,32 @@ export class MockRepo implements Repo {
     if (!u) throw new Error('not_found');
     u.isActive = active; this.save(); return u;
   }
+  async updateUserLocation(id: string, lat: number | null, lng: number | null, radius: number | null) {
+    const u = this.s.users.find((x) => x.id === id);
+    if (!u) throw new Error('not_found');
+    u.workLat = lat; u.workLng = lng; u.workRadius = radius;
+    this.save(); return u;
+  }
 
   // ---------- attendance ----------
   async getTodayAttendance(userId: string) {
     const today = todayWIB();
     return this.s.attendances.find((a) => a.userId === userId && a.date === today) ?? null;
   }
-  async clockIn(userId: string, ip?: string) {
+  async clockIn(userId: string, ip?: string, lat?: number, lng?: number) {
+    const user = this.s.users.find((u) => u.id === userId);
+    if (!user) throw new Error('not_found');
+
+    if (user.workLat != null && user.workLng != null && user.workRadius != null) {
+      if (lat == null || lng == null) {
+        throw new Error('outside_radius'); // Missing GPS when required
+      }
+      const dist = getDistance(lat, lng, user.workLat, user.workLng);
+      if (dist > user.workRadius) {
+        throw new Error('outside_radius');
+      }
+    }
+
     const today = todayWIB();
     if (this.s.attendances.some((a) => a.userId === userId && a.date === today)) {
       throw new Error('already_clocked_in');

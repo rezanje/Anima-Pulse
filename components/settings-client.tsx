@@ -21,6 +21,9 @@ export function SettingsClient({ users: initialUsers, erTargets: initialTargets,
   const [users, setUsers] = useState<User[]>(initialUsers);
   const [erTargets, setErTargets] = useState<ErTargets>(initialTargets);
   const [toast, setToast] = useState('');
+  
+  const [editingLocId, setEditingLocId] = useState<string | null>(null);
+  const [locForm, setLocForm] = useState({ lat: '', lng: '', radius: '' });
 
   const showToast = useCallback((msg: string) => {
     setToast(msg);
@@ -46,6 +49,48 @@ export function SettingsClient({ users: initialUsers, erTargets: initialTargets,
     } catch {
       showToast('Gagal memperbarui status user');
     }
+  }
+
+  // ---- User location change ----
+  function openLoc(u: User) {
+    setEditingLocId(u.id);
+    setLocForm({
+      lat: u.workLat != null ? String(u.workLat) : '',
+      lng: u.workLng != null ? String(u.workLng) : '',
+      radius: u.workRadius != null ? String(u.workRadius) : '30',
+    });
+  }
+
+  async function handleSaveLoc(id: string) {
+    try {
+      const lat = locForm.lat ? parseFloat(locForm.lat) : null;
+      const lng = locForm.lng ? parseFloat(locForm.lng) : null;
+      const radius = locForm.radius ? parseFloat(locForm.radius) : null;
+      const updated = await apiPut<User>('/settings/users', { id, workLat: lat, workLng: lng, workRadius: radius });
+      setUsers((prev) => prev.map((u) => (u.id === id ? updated : u)));
+      setEditingLocId(null);
+      showToast('Lokasi absen berhasil disimpan');
+    } catch (e: any) {
+      showToast(`Gagal menyimpan lokasi: ${e.message || 'Error'}`);
+    }
+  }
+
+  function handleGetLocation() {
+    if (!navigator.geolocation) {
+      showToast('Geolocation tidak didukung browser ini');
+      return;
+    }
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        setLocForm((prev) => ({
+          ...prev,
+          lat: String(pos.coords.latitude),
+          lng: String(pos.coords.longitude)
+        }));
+        showToast('Koordinat GPS didapatkan');
+      },
+      () => showToast('Gagal mendapatkan lokasi GPS. Pastikan izin lokasi aktif.')
+    );
   }
 
   // ---- ER targets save ----
@@ -97,8 +142,9 @@ export function SettingsClient({ users: initialUsers, erTargets: initialTargets,
               <span></span>
             </div>
             {users.map((u) => (
-              <div key={u.id} className="t-row">
-                <span className="t-cell-name">
+              <div key={u.id} style={{ display: 'contents' }}>
+                <div className="t-row">
+                  <span className="t-cell-name">
                   <Avatar user={u} size={32} />
                   <span>
                     <span className="t-name">{u.name}</span>
@@ -129,7 +175,30 @@ export function SettingsClient({ users: initialUsers, erTargets: initialTargets,
                     </StatusPill>
                   </button>
                 </span>
-                <span><button className="icon-btn">{I.more}</button></span>
+                <span>
+                  <button className="icon-btn" title="Atur Lokasi Absen" onClick={() => openLoc(u)}>
+                    📍
+                  </button>
+                </span>
+              </div>
+              {editingLocId === u.id && (
+                <div className="t-row" style={{ gridColumn: '1 / -1', background: 'var(--bg-subtle)', padding: '16px' }}>
+                  <div style={{ display: 'flex', gap: 16, alignItems: 'flex-end', flexWrap: 'wrap' }}>
+                    <Field label="Latitude">
+                      <input type="text" className="input" value={locForm.lat} onChange={(e) => setLocForm({...locForm, lat: e.target.value})} placeholder="-6.200000" />
+                    </Field>
+                    <Field label="Longitude">
+                      <input type="text" className="input" value={locForm.lng} onChange={(e) => setLocForm({...locForm, lng: e.target.value})} placeholder="106.816666" />
+                    </Field>
+                    <Field label="Radius (m)">
+                      <input type="number" className="input" value={locForm.radius} onChange={(e) => setLocForm({...locForm, radius: e.target.value})} placeholder="30" style={{ width: 100 }} />
+                    </Field>
+                    <Button variant="outline" onClick={handleGetLocation}>📍 Lokasi Saya</Button>
+                    <Button variant="primary" onClick={() => handleSaveLoc(u.id)}>Simpan</Button>
+                    <Button variant="ghost" onClick={() => setEditingLocId(null)}>Batal</Button>
+                  </div>
+                </div>
+              )}
               </div>
             ))}
           </div>

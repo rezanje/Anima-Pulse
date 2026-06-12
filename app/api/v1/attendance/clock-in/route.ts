@@ -9,8 +9,14 @@ import { recordAudit } from '@/lib/audit';
 export async function POST(req: Request) {
   return handle(async () => {
     const session = await requirePermission('clock');
+    
+    let body: any = {};
+    try {
+      body = await req.json();
+    } catch {}
+
     const repo = getRepo();
-    const record = await repo.clockIn(session.user.id, clientIp(req) ?? undefined);
+    const record = await repo.clockIn(session.user.id, clientIp(req) ?? undefined, body.lat, body.lng);
     await recordAudit({
       userId: session.user.id,
       action: 'clock_in',

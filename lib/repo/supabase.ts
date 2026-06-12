@@ -18,7 +18,7 @@ function client(): SupabaseClient {
 }
 
 // row → domain mappers
-const toUser = (r: any): User => ({ id: r.id, email: r.email, name: r.full_name, handle: r.handle, role: r.role, avatar: r.avatar, joined: r.joined, isActive: r.is_active });
+const toUser = (r: any): User => ({ id: r.id, email: r.email, name: r.full_name, handle: r.handle, role: r.role, avatar: r.avatar, joined: r.joined, isActive: r.is_active, workLat: r.work_lat, workLng: r.work_lng, workRadius: r.work_radius });
 const toAtt = (r: any): Attendance => ({ id: r.id, userId: r.user_id, date: r.date, clockInAt: r.clock_in_at, clockOutAt: r.clock_out_at, status: r.status, ipAddress: r.ip_address });
 const toSub = (r: any): Submission => ({ id: r.id, userId: r.user_id, url: r.url, platform: r.platform, title: r.title, views: r.views, likes: r.likes, comments: r.comments, shares: r.shares, followers: r.followers_at_post, er: Number(r.er_rate), submittedAt: r.submitted_at, editableUntil: r.editable_until });
 const toKol = (r: any): Kol => ({ id: r.id, name: r.name, handle: r.handle, platform: r.platform, niche: r.niche ?? [], followers: r.followers, avgViews: r.avg_views, avgER: Number(r.avg_er), ratePerContent: Number(r.rate_per_content), status: r.status, contact: r.contact ?? { wa: '', email: '' }, notes: r.notes ?? '', createdBy: r.created_by, isDeleted: r.is_deleted });
@@ -35,6 +35,22 @@ export class SupabaseRepo implements Repo {
   async getUserByEmail(email: string) { const { data } = await this.db.from('users').select('*').ilike('email', email).maybeSingle(); return data ? toUser(data) : null; }
   async updateUserRole(id: string, role: Role) { const { data, error } = await this.db.from('users').update({ role }).eq('id', id).select('*').single(); if (error) throw new Error('not_found'); return toUser(data); }
   async setUserActive(id: string, active: boolean) { const { data, error } = await this.db.from('users').update({ is_active: active }).eq('id', id).select('*').single(); if (error) throw new Error('not_found'); return toUser(data); }
+  async updateUserLocation(id: string, lat: number | null, lng: number | null, radius: number | null) {
+    const { data, error } = await this.db.from('users').update({ work_lat: lat, work_lng: lng, work_radius: radius }).eq('id', id).select('*').single();
+    if (error) throw new Error('not_found');
+    return toUser(data);
+  }
+
+  private getDistance(lat1: number, lon1: number, lat2: number, lon2: number): number {
+    const R = 6371e3; // meters
+    const p1 = lat1 * Math.PI / 180;
+    const p2 = lat2 * Math.PI / 180;
+    const dp = (lat2 - lat1) * Math.PI / 180;
+    const dl = (lon2 - lon1) * Math.PI / 180;
+    const a = Math.sin(dp / 2) * Math.sin(dp / 2) + Math.cos(p1) * Math.cos(p2) * Math.sin(dl / 2) * Math.sin(dl / 2);
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+    return R * c;
+  }
 
   // ---------- attendance ----------
   async getTodayAttendance(userId: string) {
@@ -42,7 +58,20 @@ export class SupabaseRepo implements Repo {
     const { data } = await this.db.from('attendances').select('*').eq('user_id', userId).eq('date', today).maybeSingle();
     return data ? toAtt(data) : null;
   }
-  async clockIn(userId: string, ip?: string) {
+  async clockIn(userId: string, ip?: string, lat?: number, lng?: number) {
+    const user = await this.getUser(userId);
+    if (!user) throw new Error('not_found');
+
+    if (user.workLat != null && user.workLng != null && user.workRadius != null) {
+      if (lat == null || lng == null) {
+        throw new Error('outside_radius');
+      }
+      const dist = this.getDistance(lat, lng, user.workLat, user.workLng);
+      if (dist > user.workRadius) {
+        throw new Error('outside_radius');
+      }
+    }
+
     const today = new Date(Date.now() + 7 * 3_600_000).toISOString().slice(0, 10);
     const existing = await this.getTodayAttendance(userId);
     if (existing) throw new Error('already_clocked_in');

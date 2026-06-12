@@ -1012,8 +1012,10 @@ a { color: var(--accent); text-decoration: none; }
 }
 .t-sort.active { color: var(--text-primary); }
 .t-cell-name { display: flex; align-items: center; gap: 10px; min-width: 0; }
+.t-cell-name:hover .t-name { text-decoration: underline; color: var(--accent-deep); }
+[data-theme="dark"] .t-cell-name:hover .t-name { color: var(--accent); }
 .t-cell-name span { display: flex; flex-direction: column; min-width: 0; }
-.t-name { font-weight: 500; }
+.t-name { font-weight: 500; transition: color 0.12s; }
 .t-handle { font-family: var(--font-mono); font-size: 11px; color: var(--text-tertiary); }
 .t-cell-num { font-size: 13.5px; }
 .t-cell-er { font-size: 16px; font-weight: 500; }
