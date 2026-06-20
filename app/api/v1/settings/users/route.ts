@@ -51,6 +51,10 @@ export async function PUT(req: Request) {
       );
     }
     if (parsed.data.loginCode !== undefined) {
+      const existingWithCode = await repo.getUserByLoginCode(parsed.data.loginCode);
+      if (existingWithCode && existingWithCode.id !== parsed.data.id) {
+        return fail(409, 'code_already_exists');
+      }
       if (!isCloudMode()) {
         const mockRepo = repo as any;
         if (mockRepo.s && mockRepo.s.users) {
@@ -93,10 +97,16 @@ export async function POST(req: Request) {
     const email = parsed.data.email.toLowerCase();
     const name = parsed.data.name;
     const role = parsed.data.role;
+    const loginCode = parsed.data.loginCode;
     
     const repo = getRepo();
     const existing = await repo.getUserByEmail(email);
     if (existing) return fail(409, 'user_already_exists');
+
+    if (loginCode) {
+      const existingWithCode = await repo.getUserByLoginCode(loginCode);
+      if (existingWithCode) return fail(409, 'code_already_exists');
+    }
     
     const joined = new Date().toISOString().slice(0, 10);
     // Since we don't have Supabase Auth ID yet, we generate a UUID for cloud mode and a normal ID for mock mode
@@ -115,7 +125,7 @@ export async function POST(req: Request) {
         avatar: '',
         joined,
         isActive: true,
-        loginCode: parsed.data.loginCode
+        loginCode
       };
       if (mockRepo.s && mockRepo.s.users) {
         mockRepo.s.users.push(newUser);
@@ -137,7 +147,7 @@ export async function POST(req: Request) {
         avatar: null,
         joined,
         is_active: true,
-        login_code: parsed.data.loginCode
+        login_code: loginCode
       }).select('*').single();
       
       if (error) {

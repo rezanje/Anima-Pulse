@@ -89,7 +89,12 @@ export function SettingsClient({ users: initialUsers, erTargets: initialTargets,
       setShowInviteForm(false);
       showToast('User baru berhasil didaftarkan');
     } catch (e: any) {
-      showToast(`Gagal menambahkan user: ${e.message || 'Error'}`);
+      const errMsg = e.message === 'code_already_exists' 
+        ? 'Kode akses sudah digunakan oleh user lain' 
+        : e.message === 'user_already_exists'
+        ? 'Email user sudah terdaftar'
+        : (e.message || 'Error');
+      showToast(`Gagal menambahkan user: ${errMsg}`);
     } finally {
       setBusyInvite(false);
     }
@@ -101,8 +106,11 @@ export function SettingsClient({ users: initialUsers, erTargets: initialTargets,
       const updated = await apiPut<User>('/settings/users', { id, loginCode: code });
       setUsers((prev) => prev.map((u) => (u.id === id ? updated : u)));
       showToast('Kode akses berhasil diperbarui');
-    } catch (err) {
-      showToast('Gagal memperbarui kode akses');
+    } catch (err: any) {
+      const errMsg = err.message === 'code_already_exists'
+        ? 'Kode akses sudah digunakan oleh user lain'
+        : 'Gagal memperbarui kode akses';
+      showToast(errMsg);
       throw err;
     }
   }
