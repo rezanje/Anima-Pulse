@@ -2,6 +2,7 @@ import { describe, it, expect } from 'vitest';
 import { submissionSchema } from '@/lib/validation/content';
 import { vaultSchema } from '@/lib/validation/vault';
 import { kolSchema } from '@/lib/validation/kol';
+import { patchSchema, inviteSchema } from '@/lib/validation/users';
 
 const base = { url: 'https://www.tiktok.com/@x/video/123', platform: 'tiktok' as const, title: 't', views: 1000, likes: 10, comments: 1, shares: 1, followers: 5000 };
 
@@ -34,5 +35,22 @@ describe('kol validation', () => {
   });
   it('rejects negative rate', () => {
     expect(kolSchema.safeParse({ name: 'X', handle: '@x', platform: 'tiktok', niche: [], followers: 1000, ratePerContent: -5, status: 'prospect', contact: { wa: '', email: '' } }).success).toBe(false);
+  });
+});
+
+describe('user settings validation', () => {
+  it('patchSchema allows optional loginCode', () => {
+    expect(patchSchema.safeParse({ id: 'u01' }).success).toBe(true);
+    expect(patchSchema.safeParse({ id: 'u01', loginCode: '1234' }).success).toBe(true);
+    expect(patchSchema.safeParse({ id: 'u01', loginCode: '' }).success).toBe(false);
+  });
+
+  it('inviteSchema requires loginCode and validates it', () => {
+    expect(inviteSchema.safeParse({ email: 'new@user.com', name: 'New User', role: 'staff', loginCode: '5678' }).success).toBe(true);
+    const result = inviteSchema.safeParse({ email: 'new@user.com', name: 'New User', role: 'staff' });
+    expect(result.success).toBe(false);
+    if (!result.success) {
+      expect(result.error.errors[0].message).toBe('Kode PIN wajib diisi');
+    }
   });
 });

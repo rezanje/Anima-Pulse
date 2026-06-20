@@ -6,7 +6,7 @@
 import { useState, useCallback } from 'react';
 import { Avatar, Button, StatusPill, Tabs, Toast, PlatformBadge, Field } from '@/components/widgets';
 import { I } from '@/components/icons';
-import { apiPut } from '@/lib/client';
+import { apiPut, apiPost } from '@/lib/client';
 import { fmtAgo } from '@/lib/format';
 import type { User, ErTargets, AuditLog, Role } from '@/lib/repo/types';
 
@@ -25,9 +25,44 @@ export function SettingsClient({ users: initialUsers, erTargets: initialTargets,
   const [editingLocId, setEditingLocId] = useState<string | null>(null);
   const [locForm, setLocForm] = useState({ lat: '', lng: '', radius: '' });
 
+  const [showInviteForm, setShowInviteForm] = useState(false);
+  const [inviteForm, setInviteForm] = useState({ email: '', name: '', role: 'staff' as Role, loginCode: '' });
+  const [busyInvite, setBusyInvite] = useState(false);
+
   const showToast = useCallback((msg: string) => {
     setToast(msg);
   }, []);
+
+  async function handleInviteUser() {
+    if (!inviteForm.name.trim() || !inviteForm.email.trim() || !inviteForm.loginCode.trim()) {
+      showToast('Nama, Email, dan Kode PIN harus diisi');
+      return;
+    }
+    
+    setBusyInvite(true);
+    try {
+      const newUser = await apiPost<User>('/settings/users', inviteForm);
+      setUsers((prev) => [...prev, newUser]);
+      setInviteForm({ email: '', name: '', role: 'staff', loginCode: '' });
+      setShowInviteForm(false);
+      showToast('User baru berhasil didaftarkan');
+    } catch (e: any) {
+      showToast(`Gagal menambahkan user: ${e.message || 'Error'}`);
+    } finally {
+      setBusyInvite(false);
+    }
+  }
+
+  // ---- User login code change ----
+  async function handleLoginCodeChange(id: string, code: string) {
+    try {
+      const updated = await apiPut<User>('/settings/users', { id, loginCode: code });
+      setUsers((prev) => prev.map((u) => (u.id === id ? updated : u)));
+      showToast('Kode akses berhasil diperbarui');
+    } catch {
+      showToast('Gagal memperbarui kode akses');
+    }
+  }
 
   // ---- User role change ----
   async function handleRoleChange(id: string, role: Role) {
@@ -126,17 +161,81 @@ export function SettingsClient({ users: initialUsers, erTargets: initialTargets,
       {/* ---- USERS TAB ---- */}
       {tab === 'users' && (
         <article className="card">
-          <div className="card-head">
+          <div className="card-head" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             <div>
               <h3 className="card-h">User &amp; role assignment</h3>
               <span className="card-sub">{users.length} user terdaftar · login via Google Workspace</span>
             </div>
+            <Button variant="primary" icon={I.plus} onClick={() => setShowInviteForm(!showInviteForm)} disabled={busyInvite}>
+              {showInviteForm ? 'Batal' : 'Tambah User'}
+            </Button>
           </div>
+
+          {showInviteForm && (
+            <div style={{
+              background: 'var(--bg-deep)',
+              border: '1px solid var(--border)',
+              borderRadius: 'var(--radius-md)',
+              padding: 'var(--space-4)',
+              margin: '0 var(--space-6) var(--space-4) var(--space-6)',
+              display: 'flex',
+              flexDirection: 'column',
+              gap: 'var(--space-3)'
+            }}>
+              <h4 style={{ margin: 0, fontSize: '14px', fontWeight: 'bold' }}>Tambah User Baru (Whitelist)</h4>
+              <div style={{ display: 'flex', gap: 'var(--space-3)', flexWrap: 'wrap', alignItems: 'flex-end' }}>
+                <Field label="Nama Lengkap">
+                  <input
+                    type="text"
+                    className="input"
+                    placeholder="Nama Lengkap"
+                    value={inviteForm.name}
+                    onChange={(e) => setInviteForm({ ...inviteForm, name: e.target.value })}
+                  />
+                </Field>
+                <Field label="Email Google">
+                  <input
+                    type="email"
+                    className="input"
+                    placeholder="nama@gmail.com"
+                    value={inviteForm.email}
+                    onChange={(e) => setInviteForm({ ...inviteForm, email: e.target.value })}
+                  />
+                </Field>
+                <Field label="Role">
+                  <select
+                    className="select"
+                    value={inviteForm.role}
+                    onChange={(e) => setInviteForm({ ...inviteForm, role: e.target.value as Role })}
+                    style={{ height: '36px' }}
+                  >
+                    <option value="staff">Staff</option>
+                    <option value="manager">Manager</option>
+                    <option value="admin">Admin</option>
+                  </select>
+                </Field>
+                <Field label="Kode PIN / Akses">
+                  <input
+                    type="text"
+                    className="input"
+                    placeholder="1234"
+                    value={inviteForm.loginCode}
+                    onChange={(e) => setInviteForm({ ...inviteForm, loginCode: e.target.value })}
+                  />
+                </Field>
+                <Button variant="primary" onClick={handleInviteUser} disabled={busyInvite}>
+                  {busyInvite ? 'Menyimpan...' : 'Simpan User'}
+                </Button>
+              </div>
+            </div>
+          )}
+
           <div className="t-table">
             <div className="t-row t-head">
               <span>User</span>
               <span>Email</span>
               <span>Role</span>
+              <span>PIN</span>
               <span>Joined</span>
               <span>Status</span>
               <span></span>
@@ -162,6 +261,16 @@ export function SettingsClient({ users: initialUsers, erTargets: initialTargets,
                     <option value="manager">Manager</option>
                     <option value="admin">Admin</option>
                   </select>
+                </span>
+                <span>
+                  <input
+                    type="text"
+                    className="input select-sm"
+                    value={u.loginCode || ''}
+                    placeholder="—"
+                    onChange={(e) => handleLoginCodeChange(u.id, e.target.value)}
+                    style={{ width: '90px', height: '28px', padding: '2px 6px', fontSize: '12px' }}
+                  />
                 </span>
                 <span className="mono-num t-cell-num">{u.joined}</span>
                 <span>
