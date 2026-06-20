@@ -24,6 +24,7 @@ interface NavItem {
 const NAV: NavItem[] = [
   { href: '/dashboard', label: 'Dashboard', icon: I.home, action: 'scorecard' },
   { href: '/submit', label: 'Submit konten', icon: I.pulse, action: 'submit', badge: true },
+  { href: '/tracker', label: 'Content Plan', icon: I.calendar, action: 'tracker-view' },
   { href: '/team', label: 'Performa tim', icon: I.team, action: 'team-view' },
   { href: '/kol', label: 'KOL Hub', icon: I.kol, action: 'kol-crud' },
   { href: '/vault', label: 'FYP Vault', icon: I.vault, action: 'vault-read' },
@@ -33,6 +34,7 @@ const NAV: NavItem[] = [
 const TITLES: Record<string, string> = {
   '/dashboard': 'Dashboard',
   '/submit': 'Submit konten',
+  '/tracker': 'Content Plan Tracker',
   '/team': 'Performa tim',
   '/kol': 'KOL Hub',
   '/vault': 'FYP Vault',

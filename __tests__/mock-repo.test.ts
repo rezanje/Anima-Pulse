@@ -50,4 +50,18 @@ describe('MockRepo', () => {
     expect(both.every((v) => v.tags.includes('Hook') && v.tags.includes('Trend'))).toBe(true);
     expect(both.length).toBeGreaterThan(0);
   });
+  it('getUserByLoginCode finds seeded user by loginCode and returns null for invalid codes', async () => {
+    const adminUser = await r.getUserByLoginCode('ADMIN123');
+    expect(adminUser).not.toBeNull();
+    expect(adminUser?.id).toBe('u07');
+    expect(adminUser?.role).toBe('admin');
+
+    const superAdminUser = await r.getUserByLoginCode('SUPER123');
+    expect(superAdminUser).not.toBeNull();
+    expect(superAdminUser?.id).toBe('u00');
+    expect(superAdminUser?.role).toBe('admin');
+
+    const invalidUser = await r.getUserByLoginCode('INVALID_CODE');
+    expect(invalidUser).toBeNull();
+  });
 });

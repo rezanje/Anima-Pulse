@@ -18,7 +18,8 @@ export type Action =
   | 'kol-roi-write'
   | 'user-manage'
   | 'er-target-set'
-  | 'audit-view';
+  | 'audit-view'
+  | 'tracker-view';
 
 const M: Record<Action, Role[]> = {
   clock: ['staff', 'manager', 'admin'],
@@ -35,6 +36,7 @@ const M: Record<Action, Role[]> = {
   'user-manage': ['admin'],
   'er-target-set': ['admin'],
   'audit-view': ['admin'],
+  'tracker-view': ['staff', 'manager', 'admin'],
 };
 
 export function can(role: Role, action: Action): boolean {
