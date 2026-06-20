@@ -30,6 +30,12 @@ create index if not exists idx_content_plans_created on public.content_plans(cre
 -- enable RLS
 alter table public.content_plans enable row level security;
 
+-- drop if exists first to prevent duplicate policy errors
+drop policy if exists plans_select on public.content_plans;
+drop policy if exists plans_insert on public.content_plans;
+drop policy if exists plans_update on public.content_plans;
+drop policy if exists plans_delete on public.content_plans;
+
 -- RLS policies
 create policy plans_select on public.content_plans for select using (auth.role() = 'authenticated');
 create policy plans_insert on public.content_plans for insert with check (auth.role() = 'authenticated');
