@@ -8,8 +8,19 @@ const bodySchema = z.object({
   code: z.string().min(1, 'Kode PIN wajib diisi'),
 });
 
+// In-memory rate limiter to protect against code brute-forcing
+const loginAttempts = new Map<string, { count: number; lockUntil: number }>();
+
 export async function POST(req: Request) {
   return handle(async () => {
+    const ip = clientIp(req) || '127.0.0.1';
+    const now = Date.now();
+    const attempts = loginAttempts.get(ip);
+
+    if (attempts && attempts.lockUntil > now) {
+      return fail(429, 'too_many_attempts');
+    }
+
     const json = await req.json().catch(() => null);
     const parsed = bodySchema.safeParse(json);
     if (!parsed.success) {
@@ -21,6 +32,12 @@ export async function POST(req: Request) {
     const user = await repo.getUserByLoginCode(code);
     
     if (!user) {
+      const record = loginAttempts.get(ip) || { count: 0, lockUntil: 0 };
+      record.count += 1;
+      if (record.count >= 5) {
+        record.lockUntil = now + 60 * 1000; // 1 minute lockout
+      }
+      loginAttempts.set(ip, record);
       return fail(401, 'invalid_code');
     }
     
@@ -28,12 +45,16 @@ export async function POST(req: Request) {
       return fail(403, 'user_inactive');
     }
 
+    // Clear attempts on success
+    loginAttempts.delete(ip);
+
     const token = encodeSession(user.id, user.role);
     const res = ok({ role: user.role, userId: user.id });
     res.cookies.set(SESSION_COOKIE, token, {
       httpOnly: true,
       sameSite: 'lax',
       path: '/',
+      secure: process.env.NODE_ENV === 'production',
       maxAge: 60 * 60 * 8, // 8h
     });
 
@@ -42,7 +63,7 @@ export async function POST(req: Request) {
       action: 'login_code',
       resourceType: 'user',
       resourceId: user.id,
-      ipAddress: clientIp(req) ?? null,
+      ipAddress: ip,
     });
 
     return res;

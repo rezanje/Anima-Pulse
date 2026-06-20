@@ -21,7 +21,7 @@ const errorMsgs: Record<string, string> = {
   not_invited: 'Email Anda belum terdaftar atau diundang oleh administrator.',
 };
 
-export function LoginForm({ cloudMode, devLoginAllowed = false, companyDomain = 'anima.id' }: { cloudMode: boolean; devLoginAllowed?: boolean; companyDomain?: string }) {
+export function LoginForm({ devLoginAllowed = false }: { devLoginAllowed?: boolean }) {
   const router = useRouter();
   const searchParams = useSearchParams();
   const error = searchParams.get('error');

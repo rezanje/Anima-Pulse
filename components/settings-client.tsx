@@ -23,7 +23,7 @@ function PinInput({
 }: {
   userId: string;
   initialValue: string;
-  onSave: (id: string, val: string) => void;
+  onSave: (id: string, val: string) => Promise<void>;
 }) {
   const [val, setVal] = useState(initialValue);
   
@@ -39,9 +39,13 @@ function PinInput({
       value={val}
       placeholder="—"
       onChange={(e) => setVal(e.target.value)}
-      onBlur={() => {
+      onBlur={async () => {
         if (val.trim() !== initialValue.trim()) {
-          onSave(userId, val.trim());
+          try {
+            await onSave(userId, val.trim());
+          } catch {
+            setVal(initialValue);
+          }
         }
       }}
       onKeyDown={(e) => {
@@ -97,8 +101,9 @@ export function SettingsClient({ users: initialUsers, erTargets: initialTargets,
       const updated = await apiPut<User>('/settings/users', { id, loginCode: code });
       setUsers((prev) => prev.map((u) => (u.id === id ? updated : u)));
       showToast('Kode akses berhasil diperbarui');
-    } catch {
+    } catch (err) {
       showToast('Gagal memperbarui kode akses');
+      throw err;
     }
   }
 

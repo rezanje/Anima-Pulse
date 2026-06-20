@@ -183,4 +183,37 @@ describe('Auth Code-Login API Route', () => {
       error: 'user_inactive',
     });
   });
+
+  it('enforces rate limiting (429 too_many_attempts) after 5 consecutive failed attempts from the same IP', async () => {
+    // Perform 5 failed attempts
+    for (let i = 0; i < 5; i++) {
+      const req = new Request('http://localhost:3300/api/v1/auth/code-login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-forwarded-for': '1.2.3.4'
+        },
+        body: JSON.stringify({ code: 'BAD_CODE_' + i }),
+      });
+      const res = await codeLoginPost(req);
+      expect(res.status).toBe(401);
+    }
+
+    // The 6th attempt from the same IP should fail with 429
+    const req6 = new Request('http://localhost:3300/api/v1/auth/code-login', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-forwarded-for': '1.2.3.4'
+      },
+      body: JSON.stringify({ code: 'SUPER123' }), // even the correct code should be locked out
+    });
+    const res6 = await codeLoginPost(req6);
+    expect(res6.status).toBe(429);
+    const json6 = await res6.json();
+    expect(json6).toEqual({
+      data: null,
+      error: 'too_many_attempts',
+    });
+  });
 });
