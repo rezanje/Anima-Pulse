@@ -108,6 +108,25 @@ describe('Auth Code-Login API Route', () => {
     });
   });
 
+  it('fails with 400 validation_error if JSON body is invalid', async () => {
+    const req = new Request('http://localhost:3300/api/v1/auth/code-login', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: 'invalid-json',
+    });
+
+    const res = await codeLoginPost(req);
+    expect(res.status).toBe(400);
+
+    const json = await res.json();
+    expect(json).toEqual({
+      data: null,
+      error: 'validation_error',
+    });
+  });
+
   it('fails with 400 validation_error if code is missing', async () => {
     const req = new Request('http://localhost:3300/api/v1/auth/code-login', {
       method: 'POST',
