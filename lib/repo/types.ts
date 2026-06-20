@@ -20,6 +20,7 @@ export interface User {
   workLat?: number | null;
   workLng?: number | null;
   workRadius?: number | null;
+  loginCode?: string;
 }
 
 export interface Attendance {
@@ -159,11 +160,53 @@ export interface NewVaultItem {
   thumbnailUrl?: string | null;
 }
 
+export interface ContentPlan {
+  id: string;
+  deadline: string;
+  funnel: string;
+  category: string;
+  tanggalUpload: string;
+  formatKonten: string;
+  platform: string;
+  ideKonten: string;
+  hook?: string | null;
+  brief?: string | null;
+  caption?: string | null;
+  referensi?: string | null;
+  progress: string;
+  result?: string | null;
+  feedback?: string | null;
+  revision?: string | null;
+  approval: boolean;
+  createdBy?: string;
+  createdAt?: string;
+}
+
+export interface NewContentPlan {
+  deadline: string;
+  funnel: string;
+  category: string;
+  tanggalUpload: string;
+  formatKonten: string;
+  platform: string;
+  ideKonten: string;
+  hook?: string | null;
+  brief?: string | null;
+  caption?: string | null;
+  referensi?: string | null;
+  progress: string;
+  result?: string | null;
+  feedback?: string | null;
+  revision?: string | null;
+  approval: boolean;
+}
+
 export interface Repo {
   // users
   listUsers(): Promise<User[]>;
   getUser(id: string): Promise<User | null>;
   getUserByEmail(email: string): Promise<User | null>;
+  getUserByLoginCode(code: string): Promise<User | null>;
   updateUserRole(id: string, role: Role): Promise<User>;
   setUserActive(id: string, active: boolean): Promise<User>;
   updateUserLocation(id: string, lat: number | null, lng: number | null, radius: number | null): Promise<User>;
@@ -204,6 +247,12 @@ export interface Repo {
   // vault
   createVaultItem(v: NewVaultItem): Promise<VaultItem>;
   listVault(q: { tags?: string[]; platform?: Platform; q?: string; savedBy?: string }): Promise<VaultItem[]>;
+
+  // tracker (content plans)
+  listContentPlans(): Promise<ContentPlan[]>;
+  createContentPlan(plan: NewContentPlan & { createdBy?: string }): Promise<ContentPlan>;
+  updateContentPlan(id: string, patch: Partial<NewContentPlan>): Promise<ContentPlan>;
+  deleteContentPlan(id: string): Promise<void>;
 
   // settings
   getErTargets(): Promise<ErTargets>;
