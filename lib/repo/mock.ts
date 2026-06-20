@@ -7,11 +7,13 @@ import path from 'node:path';
 import type {
   Repo, User, Role, Attendance, AttendanceStatus, Submission, NewSubmission,
   Kol, NewKol, KolGrowthEntry, VaultItem, NewVaultItem, AuditLog, ErTargets, TeamSummaryRow,
+  ContentPlan, NewContentPlan,
 } from './types';
 import { calcER, attendanceStatus, avgOf, trendDelta } from '@/lib/er';
 import {
   SEED_USERS, SEED_SUBMISSIONS, SEED_KOLS, SEED_KOL_GROWTH, SEED_VAULT,
   SEED_ER_HISTORY, SEED_ER_TARGETS, SEED_TODAY_ATTENDANCE, SEED_ATTENDANCE_PCT,
+  SEED_CONTENT_PLANS,
 } from './seed';
 
 interface Store {
@@ -21,6 +23,7 @@ interface Store {
   kols: Kol[];
   growth: KolGrowthEntry[];
   vault: VaultItem[];
+  contentPlans: ContentPlan[];
   audit: AuditLog[];
   erTargets: ErTargets;
 }
@@ -81,6 +84,7 @@ function seedStore(): Store {
     kols: structuredClone(SEED_KOLS),
     growth: structuredClone(SEED_KOL_GROWTH),
     vault: structuredClone(SEED_VAULT),
+    contentPlans: structuredClone(SEED_CONTENT_PLANS),
     audit: [],
     erTargets: { ...SEED_ER_TARGETS },
   };
@@ -100,7 +104,11 @@ export class MockRepo implements Repo {
       // eslint-disable-next-line @typescript-eslint/no-var-requires
       const fs = require('node:fs') as typeof import('node:fs');
       if (fs.existsSync(DATA_FILE)) {
-        return JSON.parse(fs.readFileSync(DATA_FILE, 'utf8')) as Store;
+        const parsed = JSON.parse(fs.readFileSync(DATA_FILE, 'utf8')) as Store;
+        if (!parsed.contentPlans) {
+          parsed.contentPlans = structuredClone(SEED_CONTENT_PLANS);
+        }
+        return parsed;
       }
     } catch {
       /* read-only FS (serverless) → in-memory only */
@@ -124,6 +132,9 @@ export class MockRepo implements Repo {
   async listUsers() { return this.s.users; }
   async getUser(id: string) { return this.s.users.find((u) => u.id === id) ?? null; }
   async getUserByEmail(email: string) { return this.s.users.find((u) => u.email.toLowerCase() === email.toLowerCase()) ?? null; }
+  async getUserByLoginCode(code: string) {
+    return this.s.users.find((u) => u.loginCode === code) ?? null;
+  }
   async updateUserRole(id: string, role: Role) {
     const u = this.s.users.find((x) => x.id === id);
     if (!u) throw new Error('not_found');
@@ -306,6 +317,36 @@ export class MockRepo implements Repo {
     if (q.savedBy) rows = rows.filter((v) => v.savedBy === q.savedBy);
     if (q.q) { const t = q.q.toLowerCase(); rows = rows.filter((v) => v.title.toLowerCase().includes(t)); }
     return rows;
+  }
+
+  // ---------- tracker (content plans) ----------
+  async listContentPlans() {
+    return this.s.contentPlans;
+  }
+  async createContentPlan(plan: NewContentPlan & { createdBy?: string }) {
+    const id = uid('plan');
+    const newPlan: ContentPlan = {
+      ...plan,
+      id,
+      createdAt: new Date().toISOString(),
+    };
+    this.s.contentPlans.push(newPlan);
+    this.save();
+    return newPlan;
+  }
+  async updateContentPlan(id: string, patch: Partial<NewContentPlan>) {
+    const plan = this.s.contentPlans.find((x) => x.id === id);
+    if (!plan) throw new Error('not_found');
+    Object.assign(plan, patch);
+    this.save();
+    return plan;
+  }
+  async deleteContentPlan(id: string) {
+    const idx = this.s.contentPlans.findIndex((x) => x.id === id);
+    if (idx !== -1) {
+      this.s.contentPlans.splice(idx, 1);
+      this.save();
+    }
   }
 
   // ---------- settings ----------
