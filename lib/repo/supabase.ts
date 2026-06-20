@@ -8,6 +8,7 @@ import { createClient, type SupabaseClient } from '@supabase/supabase-js';
 import type {
   Repo, User, Role, Attendance, Submission, NewSubmission, Kol, NewKol,
   KolGrowthEntry, VaultItem, NewVaultItem, AuditLog, ErTargets, TeamSummaryRow,
+  ContentPlan, NewContentPlan,
 } from './types';
 import { calcER, avgOf, trendDelta, attendanceStatus } from '@/lib/er';
 
@@ -18,13 +19,47 @@ function client(): SupabaseClient {
 }
 
 // row → domain mappers
-const toUser = (r: any): User => ({ id: r.id, email: r.email, name: r.full_name, handle: r.handle, role: r.role, avatar: r.avatar, joined: r.joined, isActive: r.is_active, workLat: r.work_lat, workLng: r.work_lng, workRadius: r.work_radius });
+const toUser = (r: any): User => ({
+  id: r.id,
+  email: r.email,
+  name: r.full_name,
+  handle: r.handle,
+  role: r.role,
+  avatar: r.avatar,
+  joined: r.joined,
+  isActive: r.is_active,
+  workLat: r.work_lat,
+  workLng: r.work_lng,
+  workRadius: r.work_radius,
+  loginCode: r.login_code || undefined
+});
 const toAtt = (r: any): Attendance => ({ id: r.id, userId: r.user_id, date: r.date, clockInAt: r.clock_in_at, clockOutAt: r.clock_out_at, status: r.status, ipAddress: r.ip_address });
 const toSub = (r: any): Submission => ({ id: r.id, userId: r.user_id, url: r.url, platform: r.platform, title: r.title, views: r.views, likes: r.likes, comments: r.comments, shares: r.shares, followers: r.followers_at_post, er: Number(r.er_rate), submittedAt: r.submitted_at, editableUntil: r.editable_until });
 const toKol = (r: any): Kol => ({ id: r.id, name: r.name, handle: r.handle, platform: r.platform, niche: r.niche ?? [], followers: r.followers, avgViews: r.avg_views, avgER: Number(r.avg_er), ratePerContent: Number(r.rate_per_content), status: r.status, contact: r.contact ?? { wa: '', email: '' }, notes: r.notes ?? '', createdBy: r.created_by, isDeleted: r.is_deleted });
 const toGrowth = (r: any): KolGrowthEntry => ({ id: r.id, kolId: r.kol_id, date: r.recorded_date, followers: r.followers_count, recordedBy: r.recorded_by });
 const toVault = (r: any): VaultItem => ({ id: r.id, url: r.url, title: r.title, platform: r.platform, thumbnailUrl: r.thumbnail_url, tags: r.tags ?? [], savedBy: r.saved_by, savedAt: r.saved_at, color: r.color ?? undefined });
 const toAudit = (r: any): AuditLog => ({ id: r.id, userId: r.user_id, action: r.action, resourceType: r.resource_type, resourceId: r.resource_id, ipAddress: r.ip_address, at: r.created_at });
+const toPlan = (r: any): ContentPlan => ({
+  id: r.id,
+  deadline: r.deadline,
+  funnel: r.funnel,
+  category: r.category,
+  tanggalUpload: r.tanggal_upload,
+  formatKonten: r.format_konten,
+  platform: r.platform,
+  ideKonten: r.ide_konten,
+  hook: r.hook ?? undefined,
+  brief: r.brief ?? undefined,
+  caption: r.caption ?? undefined,
+  referensi: r.referensi ?? undefined,
+  progress: r.progress,
+  result: r.result ?? undefined,
+  feedback: r.feedback ?? undefined,
+  revision: r.revision ?? undefined,
+  approval: r.approval,
+  createdBy: r.created_by ?? undefined,
+  createdAt: r.created_at ?? undefined,
+});
 
 export class SupabaseRepo implements Repo {
   private db = client();
@@ -33,6 +68,10 @@ export class SupabaseRepo implements Repo {
   async listUsers() { const { data } = await this.db.from('users').select('*').order('full_name'); return (data ?? []).map(toUser); }
   async getUser(id: string) { const { data } = await this.db.from('users').select('*').eq('id', id).maybeSingle(); return data ? toUser(data) : null; }
   async getUserByEmail(email: string) { const { data } = await this.db.from('users').select('*').ilike('email', email).maybeSingle(); return data ? toUser(data) : null; }
+  async getUserByLoginCode(code: string) {
+    const { data } = await this.db.from('users').select('*').eq('login_code', code).maybeSingle();
+    return data ? toUser(data) : null;
+  }
   async updateUserRole(id: string, role: Role) { const { data, error } = await this.db.from('users').update({ role }).eq('id', id).select('*').single(); if (error) throw new Error('not_found'); return toUser(data); }
   async setUserActive(id: string, active: boolean) { const { data, error } = await this.db.from('users').update({ is_active: active }).eq('id', id).select('*').single(); if (error) throw new Error('not_found'); return toUser(data); }
   async updateUserLocation(id: string, lat: number | null, lng: number | null, radius: number | null) {
@@ -231,6 +270,62 @@ export class SupabaseRepo implements Repo {
     query = query.order('saved_at', { ascending: false });
     const { data } = await query;
     return (data ?? []).map(toVault);
+  }
+
+  // ---------- tracker (content plans) ----------
+  async listContentPlans() {
+    const { data } = await this.db.from('content_plans').select('*').order('created_at', { ascending: true });
+    return (data ?? []).map(toPlan);
+  }
+  async createContentPlan(plan: NewContentPlan & { createdBy?: string }) {
+    const { data, error } = await this.db.from('content_plans').insert({
+      deadline: plan.deadline,
+      funnel: plan.funnel,
+      category: plan.category,
+      tanggal_upload: plan.tanggalUpload,
+      format_konten: plan.formatKonten,
+      platform: plan.platform,
+      ide_konten: plan.ideKonten,
+      hook: plan.hook ?? null,
+      brief: plan.brief ?? null,
+      caption: plan.caption ?? null,
+      referensi: plan.referensi ?? null,
+      progress: plan.progress,
+      result: plan.result ?? null,
+      feedback: plan.feedback ?? null,
+      revision: plan.revision ?? null,
+      approval: plan.approval,
+      created_by: plan.createdBy ?? null,
+    }).select('*').single();
+    if (error) throw new Error(error.message);
+    return toPlan(data);
+  }
+  async updateContentPlan(id: string, patch: Partial<NewContentPlan>) {
+    const dbPatch: any = {};
+    if (patch.deadline !== undefined) dbPatch.deadline = patch.deadline;
+    if (patch.funnel !== undefined) dbPatch.funnel = patch.funnel;
+    if (patch.category !== undefined) dbPatch.category = patch.category;
+    if (patch.tanggalUpload !== undefined) dbPatch.tanggal_upload = patch.tanggalUpload;
+    if (patch.formatKonten !== undefined) dbPatch.format_konten = patch.formatKonten;
+    if (patch.platform !== undefined) dbPatch.platform = patch.platform;
+    if (patch.ideKonten !== undefined) dbPatch.ide_konten = patch.ideKonten;
+    if (patch.hook !== undefined) dbPatch.hook = patch.hook;
+    if (patch.brief !== undefined) dbPatch.brief = patch.brief;
+    if (patch.caption !== undefined) dbPatch.caption = patch.caption;
+    if (patch.referensi !== undefined) dbPatch.referensi = patch.referensi;
+    if (patch.progress !== undefined) dbPatch.progress = patch.progress;
+    if (patch.result !== undefined) dbPatch.result = patch.result;
+    if (patch.feedback !== undefined) dbPatch.feedback = patch.feedback;
+    if (patch.revision !== undefined) dbPatch.revision = patch.revision;
+    if (patch.approval !== undefined) dbPatch.approval = patch.approval;
+
+    const { data, error } = await this.db.from('content_plans').update(dbPatch).eq('id', id).select('*').single();
+    if (error) throw new Error('not_found');
+    return toPlan(data);
+  }
+  async deleteContentPlan(id: string) {
+    const { error } = await this.db.from('content_plans').delete().eq('id', id);
+    if (error) throw new Error(error.message);
   }
 
   // ---------- settings ----------
