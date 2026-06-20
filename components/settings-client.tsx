@@ -3,7 +3,7 @@
 // Anima Pulse — Settings client component (Task 14)
 // Three sections: Users & Roles, Target ER, Audit Logs
 // ============================================================
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import { Avatar, Button, StatusPill, Tabs, Toast, PlatformBadge, Field } from '@/components/widgets';
 import { I } from '@/components/icons';
 import { apiPut, apiPost } from '@/lib/client';
@@ -14,6 +14,44 @@ interface Props {
   users: User[];
   erTargets: ErTargets;
   auditLogs: AuditLog[];
+}
+
+function PinInput({
+  userId,
+  initialValue,
+  onSave,
+}: {
+  userId: string;
+  initialValue: string;
+  onSave: (id: string, val: string) => void;
+}) {
+  const [val, setVal] = useState(initialValue);
+  
+  // Update local value if initialValue changes externally
+  useEffect(() => {
+    setVal(initialValue);
+  }, [initialValue]);
+
+  return (
+    <input
+      type="text"
+      className="input select-sm"
+      value={val}
+      placeholder="—"
+      onChange={(e) => setVal(e.target.value)}
+      onBlur={() => {
+        if (val.trim() !== initialValue.trim()) {
+          onSave(userId, val.trim());
+        }
+      }}
+      onKeyDown={(e) => {
+        if (e.key === 'Enter') {
+          e.currentTarget.blur();
+        }
+      }}
+      style={{ width: '90px', height: '28px', padding: '2px 6px', fontSize: '12px' }}
+    />
+  );
 }
 
 export function SettingsClient({ users: initialUsers, erTargets: initialTargets, auditLogs }: Props) {
@@ -263,14 +301,7 @@ export function SettingsClient({ users: initialUsers, erTargets: initialTargets,
                   </select>
                 </span>
                 <span>
-                  <input
-                    type="text"
-                    className="input select-sm"
-                    value={u.loginCode || ''}
-                    placeholder="—"
-                    onChange={(e) => handleLoginCodeChange(u.id, e.target.value)}
-                    style={{ width: '90px', height: '28px', padding: '2px 6px', fontSize: '12px' }}
-                  />
+                  <PinInput userId={u.id} initialValue={u.loginCode || ''} onSave={handleLoginCodeChange} />
                 </span>
                 <span className="mono-num t-cell-num">{u.joined}</span>
                 <span>
