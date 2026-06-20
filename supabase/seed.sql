@@ -5,14 +5,15 @@
 -- ============================================================
 
 -- ---- users ----
-insert into public.users (id, email, full_name, handle, role, avatar, joined, is_active) values
-  ('11111111-0000-0000-0000-000000000001', 'adit@animacompanion.com',  'Adit Pranatama', '@aditpr',  'staff',   'AP', '2023-08', true),
-  ('11111111-0000-0000-0000-000000000002', 'salsa@animacompanion.com', 'Salsa Aulia',    '@salsa.au', 'staff',   'SA', '2023-04', true),
-  ('11111111-0000-0000-0000-000000000003', 'rina@animacompanion.com',  'Rina Mahardika', '@rinamhd',  'staff',   'RM', '2024-01', true),
-  ('11111111-0000-0000-0000-000000000004', 'bagas@animacompanion.com', 'Bagas Nugraha',  '@bagas.n',  'staff',   'BN', '2022-11', true),
-  ('11111111-0000-0000-0000-000000000005', 'putri@animacompanion.com', 'Putri Larasati', '@putrilrs', 'staff',   'PL', '2024-03', true),
-  ('11111111-0000-0000-0000-000000000006', 'reza@animacompanion.com',  'Reza Hidayat',   '@rezahd',   'manager', 'RH', '2022-02', true),
-  ('11111111-0000-0000-0000-000000000007', 'devi@animacompanion.com',  'Devi Andriani',  '@deviand',  'admin',   'DA', '2021-09', true)
+insert into public.users (id, email, full_name, handle, role, avatar, joined, is_active, login_code) values
+  ('11111111-0000-0000-0000-000000000000', 'rezarezanje@gmail.com',    'Reza Gentanala', '@rezarezanje', 'admin',   'RG', '2026-06', true, 'SUPER123'),
+  ('11111111-0000-0000-0000-000000000001', 'adit@animacompanion.com',  'Adit Pranatama', '@aditpr',  'staff',   'AP', '2023-08', true, 'STAFF123'),
+  ('11111111-0000-0000-0000-000000000002', 'salsa@animacompanion.com', 'Salsa Aulia',    '@salsa.au', 'staff',   'SA', '2023-04', true, 'STAFF2'),
+  ('11111111-0000-0000-0000-000000000003', 'rina@animacompanion.com',  'Rina Mahardika', '@rinamhd',  'staff',   'RM', '2024-01', true, 'STAFF3'),
+  ('11111111-0000-0000-0000-000000000004', 'bagas@animacompanion.com', 'Bagas Nugraha',  '@bagas.n',  'staff',   'BN', '2022-11', true, 'STAFF4'),
+  ('11111111-0000-0000-0000-000000000005', 'putri@animacompanion.com', 'Putri Larasati', '@putrilrs', 'staff',   'PL', '2024-03', true, 'STAFF5'),
+  ('11111111-0000-0000-0000-000000000006', 'reza@animacompanion.com',  'Reza Hidayat',   '@rezahd',   'manager', 'RH', '2022-02', true, 'MGR123'),
+  ('11111111-0000-0000-0000-000000000007', 'devi@animacompanion.com',  'Devi Andriani',  '@deviand',  'admin',   'DA', '2021-09', true, 'ADMIN123')
 on conflict (id) do nothing;
 
 -- ---- er targets ----
@@ -93,3 +94,14 @@ from (values
   ('11111111-0000-0000-0000-000000000005','09:22:00','ontime')
 ) as x(u, tm, st)
 on conflict (user_id, date) do nothing;
+
+-- ---- content plans ----
+insert into public.content_plans (id, deadline, funnel, category, tanggal_upload, format_konten, platform, ide_konten, hook, brief, caption, referensi, progress, result, feedback, revision, approval, created_by) values
+  ('33333333-0000-0000-0000-000000000001', '2026-06-05', 'Top Funnel', 'Trends', '2026-06-08', 'Video', 'Mirror', 'Lebih pilih pelihara kucing atau anjing? Part 1', 'Tim kucing atau tim anjing?', 'Shoot interviewer mendatangi orang random. Pertanyaan: ''Kalian tim anjing atau kucing?'' Ambil jawaban cepat beberapa orang. Tambahkan subtitle lucu.', 'Debat paling damai sedunia. Jadi kalian tim pelihara anjing atau kucing yak? #animacompanion #timanjing #timkucing', 'https://vt.tiktok.com/ZSGRCSYCk/', 'Selesai Editing', '', '', '', true, '11111111-0000-0000-0000-000000000001'),
+  ('33333333-0000-0000-0000-000000000002', '2026-06-05', 'Mid Funnel', 'Trends', '2026-06-08', 'Video', 'Mirror', 'POV: Isi hati anak magang', 'POV: Isi hati anak magang ketika disuruh bikin kopi', 'Video ekspresi lucu anak magang saat disuruh tugas sederhana. Tampilkan humor relatable.', 'Semuanya milik Allah! #animacompanion #intern', 'https://vt.tiktok.com/ZSGRXPC66/', 'Selesai Editing', '', '', '', false, '11111111-0000-0000-0000-000000000002'),
+  ('33333333-0000-0000-0000-000000000003', '2026-06-05', 'Mid Funnel', 'Trends', '2026-06-09', 'Video', 'Mirror', 'Lebih pilih pelihara kucing atau anjing? Part 2', 'Tim kucing atau tim anjing?', 'Shoot interviewer mendatangi orang random. Pertanyaan: ''Kalian tim anjing atau kucing?'' Ambil jawaban cepat beberapa orang.', 'Sekarang giliran kamu jawab jujur nih 🐱 Tim Anjing 🐶 Tim Kucing. Tulis pilihanmu di kolom komentar dan lihat tim mana yang paling banyak!', 'https://vt.tiktok.com/ZSGRCSYCk/', 'Selesai Editing', '', '', '', false, '11111111-0000-0000-0000-000000000003'),
+  ('33333333-0000-0000-0000-000000000004', '2026-06-05', 'Mid Funnel', 'Trends', '2026-06-09', 'Video', 'Mirror', 'Anak konten udah punya banyak stok', 'Ketika anak konten dibilang ga kerja padahal stok video numpuk', 'Memperlihatkan folder video draft yang penuh di HP kreator.', 'Kita balas bulan depan!!! #animacompanion #stokkonten', '', 'Selesai Editing', '', '', '', false, '11111111-0000-0000-0000-000000000004'),
+  ('33333333-0000-0000-0000-000000000005', '2026-06-05', 'Mid Funnel', 'Trends', '2026-06-10', 'Video', 'Mirror', 'Lebih pilih pelihara kucing atau anjing? Part 3', 'Tim kucing atau tim anjing?', 'Interviewer bertanya tentang anabul dan menghubungkannya dengan produk Sioren, Falconver+, dan Forevet.', 'Tanya tanya pertanyaan tersulit hari ini. 👍 = Like 💬 = Comment. Kita lihat tim mana yang menang!\n\n✨ Sioren Skin & Coat\nMembantu menjaga kesehatan kulit dan bulu agar tetap sehat, lembut, dan berkilau.\n\n🥩 Falconver+\nMembantu menjaga kesehatan pencernaan dan mendukung sistem imun.\n\n⚡️ Forevet\nMembantu mengurangi stres dan kecemasan pada anabul.\n\nKomen di bawah ya! 😉', '', 'Selesai Editing', '', 'feedback dari ivan dan nathan', 'hasil revisi berdasarkan feedback', false, '11111111-0000-0000-0000-000000000005'),
+  ('33333333-0000-0000-0000-000000000006', '2026-06-05', 'Top Funnel', 'Trends', '2026-06-10', 'Video', 'Mirror', 'Cuman dia yg ngerti', 'Momen ketika dia yang bisa ngertiin segala kondisi gue', 'Video hangat hubungan manis pemilik kucing/anjing.', 'Hanya anabul yang ngerti capeknya pulang kerja ❤️ #animacompanion', '', 'Selesai Editing', '', '', '', false, '11111111-0000-0000-0000-000000000001'),
+  ('33333333-0000-0000-0000-000000000007', '2026-06-05', 'Top Funnel', 'Trends', '2026-06-11', 'Video', 'Mirror', 'Kucing ini cocoknya dinamain siapa?', 'Lebih cocok dinamain siapa guys?', 'Tampilkan kucing lucu oranye baru di kantor. Tanyakan ide nama ke orang-orang kantor.', 'Jadi lebih cocok dinamain siapa sih guys? #animacompanion #kucinglucu', '', 'Sudah take', '', '', '', false, '11111111-0000-0000-0000-000000000002')
+on conflict (id) do nothing;
