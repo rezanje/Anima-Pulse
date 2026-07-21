@@ -9,6 +9,7 @@ import { I } from '@/components/icons';
 import { apiPut, apiPost } from '@/lib/client';
 import { fmtAgo } from '@/lib/format';
 import type { User, ErTargets, AuditLog, Role } from '@/lib/repo/types';
+import { ROLE_LABEL, ASSIGNABLE_ROLES } from '@/lib/roles';
 
 interface Props {
   users: User[];
@@ -193,7 +194,7 @@ export function SettingsClient({ users: initialUsers, erTargets: initialTargets,
     <div className="screen screen-settings">
       <header className="screen-head">
         <div>
-          <div className="eyebrow">Admin · Pengaturan sistem</div>
+          <div className="eyebrow">Super Admin · Pengaturan sistem</div>
           <h1 className="screen-title">Settings</h1>
           <p className="screen-sub">Kelola user, role, target ER per platform, dan audit log.</p>
         </div>
@@ -260,9 +261,9 @@ export function SettingsClient({ users: initialUsers, erTargets: initialTargets,
                     onChange={(e) => setInviteForm({ ...inviteForm, role: e.target.value as Role })}
                     style={{ height: '36px' }}
                   >
-                    <option value="staff">Staff</option>
-                    <option value="manager">Manager</option>
-                    <option value="admin">Admin</option>
+                    {ASSIGNABLE_ROLES.map((r) => (
+                      <option key={r} value={r}>{ROLE_LABEL[r]}</option>
+                    ))}
                   </select>
                 </Field>
                 <Field label="Kode PIN / Akses">
@@ -308,9 +309,9 @@ export function SettingsClient({ users: initialUsers, erTargets: initialTargets,
                     value={u.role}
                     onChange={(e) => handleRoleChange(u.id, e.target.value as Role)}
                   >
-                    <option value="staff">Staff</option>
-                    <option value="manager">Manager</option>
-                    <option value="admin">Admin</option>
+                    {ASSIGNABLE_ROLES.map((r) => (
+                      <option key={r} value={r}>{ROLE_LABEL[r]}</option>
+                    ))}
                   </select>
                 </span>
                 <span>

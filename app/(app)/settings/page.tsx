@@ -14,12 +14,12 @@ export default async function SettingsPage() {
         <header className="screen-head">
           <div>
             <h1 className="screen-title">Settings</h1>
-            <p className="screen-sub">Halaman ini hanya untuk role Admin.</p>
+            <p className="screen-sub">Halaman ini hanya untuk role Super Admin.</p>
           </div>
         </header>
         <div className="card" style={{ padding: 48, textAlign: 'center' }}>
           <div className="empty-title">Akses terbatas</div>
-          <div className="empty-sub">Anda tidak memiliki izin untuk melihat halaman ini. Hubungi Admin untuk mendapatkan akses.</div>
+          <div className="empty-sub">Anda tidak memiliki izin untuk melihat halaman ini. Hubungi Super Admin untuk mendapatkan akses.</div>
         </div>
       </div>
     );

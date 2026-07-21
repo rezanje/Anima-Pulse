@@ -24,7 +24,7 @@ export default async function TeamPage() {
     return (
       <div className="page">
         <h1 className="page-title">Akses Terbatas</h1>
-        <p className="page-sub">Halaman ini hanya tersedia untuk Manager dan Admin.</p>
+        <p className="page-sub">Halaman ini hanya tersedia untuk Manager dan Super Admin.</p>
       </div>
     );
   }

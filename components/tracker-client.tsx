@@ -177,7 +177,7 @@ export function TrackerClient({ initialPlans, user, role }: Props) {
 
   const toggleApprovalDirectly = async (id: string, currentVal: boolean) => {
     if (!canApprove) {
-      setToast('Akses ditolak: Hanya Manager atau Admin yang bisa memberi Approval.');
+      setToast('Akses ditolak: Hanya Manager atau Super Admin yang bisa memberi Approval.');
       return;
     }
     try {

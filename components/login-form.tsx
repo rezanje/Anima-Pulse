@@ -8,6 +8,7 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { BrandMark } from '@/components/widgets';
 import { apiPost } from '@/lib/client';
 import type { Role } from '@/lib/repo/types';
+import { ROLE_LABEL } from '@/lib/roles';
 
 const errorMsgs: Record<string, string> = {
   invalid_domain: 'Email tidak diizinkan. Gunakan email Google Workspace dengan domain perusahaan.',
@@ -125,7 +126,7 @@ export function LoginForm({ devLoginAllowed = false }: { devLoginAllowed?: boole
             <div className="login-role-grid">
               {(['staff', 'manager', 'admin'] as Role[]).map((r) => (
                 <button key={r} className={'login-google login-role ' + (busy === r ? 'busy' : '')} onClick={() => loginAs(r)} disabled={!!busy}>
-                  <span className="login-role-name">{busy === r ? 'Masuk…' : `Masuk sebagai ${r}`}</span>
+                  <span className="login-role-name">{busy === r ? 'Masuk…' : `Masuk sebagai ${ROLE_LABEL[r]}`}</span>
                   <span className="login-magic-arrow">→</span>
                 </button>
               ))}

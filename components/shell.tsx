@@ -9,6 +9,7 @@ import { usePathname, useRouter } from 'next/navigation';
 import { I } from '@/components/icons';
 import { BrandMark, Avatar } from '@/components/widgets';
 import { DevSwitch } from '@/components/dev-switch';
+import { ROLE_LABEL } from '@/lib/roles';
 import { can, type Action } from '@/lib/rbac';
 import { apiPost } from '@/lib/client';
 import type { Role, User } from '@/lib/repo/types';
@@ -84,7 +85,7 @@ export function AppShell({ user, role, cloudMode, children }: { user: User; role
             <Avatar user={user} size={36} />
             <div className="sidebar-user-id">
               <div className="sidebar-user-name">{user.name}</div>
-              <div className="sidebar-user-role">{role}</div>
+              <div className="sidebar-user-role">{ROLE_LABEL[role]}</div>
             </div>
             <button className="icon-btn" onClick={logout} title="Logout">{I.logout}</button>
           </div>
