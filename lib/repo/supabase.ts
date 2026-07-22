@@ -188,7 +188,7 @@ export class SupabaseRepo implements Repo {
     return (data ?? []).map((r: any) => Number(r.er_rate));
   }
   async teamSummary(from?: string, to?: string): Promise<TeamSummaryRow[]> {
-    const users = (await this.listUsers()).filter((u) => u.role === 'staff' || u.role === 'manager');
+    const users = (await this.listUsers()).filter((u) => u.role === 'staff' || u.role === 'manager' || u.role === 'creator');
     const out: TeamSummaryRow[] = [];
     for (const user of users) {
       const subs = await this.listSubmissions({ userId: user.id, from, to });

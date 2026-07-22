@@ -244,7 +244,7 @@ export class MockRepo implements Repo {
   async erHistory(userId: string) { return SEED_ER_HISTORY[userId] ?? []; }
   async teamSummary(from?: string, to?: string): Promise<TeamSummaryRow[]> {
     const today = todayWIB();
-    const staffish = this.s.users.filter((u) => u.role === 'staff' || u.role === 'manager');
+    const staffish = this.s.users.filter((u) => u.role === 'staff' || u.role === 'manager' || u.role === 'creator');
     return staffish.map((user) => {
       let subs = this.s.submissions.filter((s) => s.userId === user.id);
       if (from) subs = subs.filter((s) => s.submittedAt >= from);

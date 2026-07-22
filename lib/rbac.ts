@@ -24,11 +24,11 @@ export type Action =
   | 'pillar-manage';
 
 const M: Record<Action, Role[]> = {
-  clock: ['staff', 'manager', 'admin'],
-  submit: ['staff', 'manager', 'admin'],
-  scorecard: ['staff', 'manager', 'admin'],
-  'vault-read': ['staff', 'manager', 'admin'],
-  'vault-write': ['staff', 'manager', 'admin'],
+  clock: ['staff', 'manager', 'admin', 'creator'],
+  submit: ['staff', 'manager', 'admin', 'creator'],
+  scorecard: ['staff', 'manager', 'admin', 'creator'],
+  'vault-read': ['staff', 'manager', 'admin', 'creator'],
+  'vault-write': ['staff', 'manager', 'admin', 'creator'],
   'team-view': ['manager', 'admin'],
   'csv-export': ['manager', 'admin'],
   'kol-crud': ['manager', 'admin'],
@@ -38,8 +38,8 @@ const M: Record<Action, Role[]> = {
   'user-manage': ['admin'],
   'er-target-set': ['admin'],
   'audit-view': ['admin'],
-  'tracker-view': ['staff', 'manager', 'admin'],
-  'pillar-view': ['staff', 'manager', 'admin'],
+  'tracker-view': ['staff', 'manager', 'admin'], // creator excluded — no planning/strategy access
+  'pillar-view': ['staff', 'manager', 'admin', 'creator'],
   'pillar-manage': ['manager', 'admin'],
 };
 

@@ -124,7 +124,7 @@ export function LoginForm({ devLoginAllowed = false }: { devLoginAllowed?: boole
               Developer Bypass (Mode Lokal):
             </p>
             <div className="login-role-grid">
-              {(['staff', 'manager', 'admin'] as Role[]).map((r) => (
+              {(['staff', 'manager', 'admin', 'creator'] as Role[]).map((r) => (
                 <button key={r} className={'login-google login-role ' + (busy === r ? 'busy' : '')} onClick={() => loginAs(r)} disabled={!!busy}>
                   <span className="login-role-name">{busy === r ? 'Masuk…' : `Masuk sebagai ${ROLE_LABEL[r]}`}</span>
                   <span className="login-magic-arrow">→</span>

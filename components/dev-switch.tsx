@@ -60,7 +60,7 @@ export function DevSwitch({ role }: { role: Role }) {
       <div className="dev-switch-section">
         <span className="dev-switch-label">Role (lihat sebagai)</span>
         <div className="dev-switch-row">
-          {(['staff', 'manager', 'admin'] as Role[]).map((r) => (
+          {(['staff', 'manager', 'admin', 'creator'] as Role[]).map((r) => (
             <button key={r} className={'dev-chip ' + (role === r ? 'active' : '')} onClick={() => switchRole(r)}>{r}</button>
           ))}
         </div>

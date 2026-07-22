@@ -32,4 +32,8 @@ describe('content module', () => {
     expect(lines[0]).toBe('Nama,Handle,Role,Jumlah Konten,Avg ER,Trend %,Kehadiran');
     expect(lines.length).toBe(rows.length + 1);
   });
+  it('team summary roster includes Konten Kreator, not just staff/manager', async () => {
+    const rows = await r.teamSummary();
+    expect(rows.some((row: TeamSummaryRow) => row.user.role === 'creator')).toBe(true);
+  });
 });

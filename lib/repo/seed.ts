@@ -3,7 +3,7 @@
 // Fictional but plausible Indonesian data. Used by MockRepo and seed.sql.
 // ============================================================
 import type {
-  User, Submission, Kol, KolGrowthEntry, VaultItem, Attendance, ErTargets, Platform,
+  User, Submission, Kol, KolGrowthEntry, VaultItem, Attendance, ErTargets, Platform, Role,
 } from './types';
 import { calcER } from '@/lib/er';
 
@@ -16,21 +16,16 @@ export const SEED_USERS: User[] = [
   { id: 'u05', name: 'Putri Larasati', handle: '@putrilrs', email: 'putri@animacompanion.com', role: 'staff', avatar: 'PL', joined: '2024-03', isActive: true, loginCode: 'STAFF5' },
   { id: 'u06', name: 'Reza Hidayat', handle: '@rezahd', email: 'reza@animacompanion.com', role: 'manager', avatar: 'RH', joined: '2022-02', isActive: true, loginCode: 'MGR123' },
   { id: 'u07', name: 'Devi Andriani', handle: '@deviand', email: 'devi@animacompanion.com', role: 'admin', avatar: 'DA', joined: '2021-09', isActive: true, loginCode: 'ADMIN123' },
+  { id: 'u08', name: 'Kirana Wardhani', handle: '@kirana.w', email: 'kirana@animacompanion.com', role: 'creator', avatar: 'KW', joined: '2026-07', isActive: true, loginCode: 'KREATOR123' },
 ];
-
-// default current user per role (dev-login)
-export const DEFAULT_USER_BY_ROLE: Record<'staff' | 'manager' | 'admin', string> = {
-  staff: 'u01',
-  manager: 'u06',
-  admin: 'u07',
-};
 
 // default user EMAIL per role — stable across MockRepo (u01..) and SupabaseRepo (UUIDs).
 // dev-login resolves the real user id from the active repo via getUserByEmail.
-export const DEFAULT_EMAIL_BY_ROLE: Record<'staff' | 'manager' | 'admin', string> = {
+export const DEFAULT_EMAIL_BY_ROLE: Record<Role, string> = {
   staff: 'adit@animacompanion.com',
   manager: 'reza@animacompanion.com',
   admin: 'devi@animacompanion.com',
+  creator: 'kirana@animacompanion.com',
 };
 
 // 8 ER history points per staff (oldest → newest)

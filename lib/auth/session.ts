@@ -7,7 +7,6 @@ import crypto from 'node:crypto';
 import { cookies } from 'next/headers';
 import { getRepo } from '@/lib/repo';
 import type { Role, User } from '@/lib/repo/types';
-import { DEFAULT_USER_BY_ROLE } from '@/lib/repo/seed';
 
 export const SESSION_COOKIE = 'ap_session';
 const SECRET = process.env.DEV_SESSION_SECRET || 'dev-only-change-me';
@@ -45,8 +44,4 @@ export async function getSession(): Promise<Session | null> {
   const user = await getRepo().getUser(decoded.userId);
   if (!user || !user.isActive) return null;
   return { user, role: user.role };
-}
-
-export function devUserIdForRole(role: Role): string {
-  return DEFAULT_USER_BY_ROLE[role];
 }

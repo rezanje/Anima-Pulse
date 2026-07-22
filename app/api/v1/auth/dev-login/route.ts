@@ -4,7 +4,7 @@ import { encodeSession, SESSION_COOKIE } from '@/lib/auth/session';
 import { isDevLoginAllowed, getRepo } from '@/lib/repo';
 import { DEFAULT_EMAIL_BY_ROLE } from '@/lib/repo/seed';
 
-const bodySchema = z.object({ role: z.enum(['staff', 'manager', 'admin']) });
+const bodySchema = z.object({ role: z.enum(['staff', 'manager', 'admin', 'creator']) });
 
 export async function POST(req: Request) {
   return handle(async () => {

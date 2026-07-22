@@ -23,9 +23,9 @@ export async function GET(req: Request) {
     const session = await requireSession();
     const url = new URL(req.url);
     const repo = getRepo();
-    // staff may only list their own submissions
+    // staff/creator may only list their own submissions
     let userId = url.searchParams.get('user_id') ?? undefined;
-    if (session.role === 'staff') userId = session.user.id;
+    if (session.role === 'staff' || session.role === 'creator') userId = session.user.id;
     const sort = url.searchParams.get('sort');
     const rows = await repo.listSubmissions({
       userId,

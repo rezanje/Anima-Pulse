@@ -3,7 +3,7 @@
 // Every module/route depends on these. Do not break signatures.
 // ============================================================
 
-export type Role = 'staff' | 'manager' | 'admin';
+export type Role = 'staff' | 'manager' | 'admin' | 'creator';
 export type Platform = 'tiktok' | 'instagram';
 export type AttendanceStatus = 'ontime' | 'late' | 'absent';
 export type KolStatus = 'prospect' | 'negotiating' | 'active' | 'blacklist';

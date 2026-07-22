@@ -10,8 +10,8 @@ export default async function TeamUserDashboardPage({ params }: { params: { id: 
   const session = await getSession();
   if (!session) redirect('/login');
 
-  // Guard: Staff cannot view other team member's dashboards
-  if (session.role === 'staff') {
+  // Guard: Staff/Konten Kreator cannot view other team member's dashboards
+  if (session.role === 'staff' || session.role === 'creator') {
     redirect('/dashboard');
   }
 

@@ -31,4 +31,18 @@ describe('rbac (PRD §10.1)', () => {
     expect(can('manager', 'kol-roi-write')).toBe(false);
     expect(can('admin', 'kol-roi-write')).toBe(true);
   });
+  it('creator (Konten Kreator) can clock/submit/scorecard/vault/pillar-view, like staff', () => {
+    for (const a of ['clock', 'submit', 'scorecard', 'vault-read', 'vault-write', 'pillar-view'] as Action[]) {
+      expect(can('creator', a)).toBe(true);
+    }
+  });
+  it('creator is denied the Content Plan Tracker, unlike staff', () => {
+    expect(can('creator', 'tracker-view')).toBe(false);
+    expect(can('staff', 'tracker-view')).toBe(true);
+  });
+  it('creator denied team/kol/export/admin/pillar-manage', () => {
+    for (const a of ['team-view', 'csv-export', 'kol-crud', 'kol-rate-view', 'user-manage', 'er-target-set', 'audit-view', 'pillar-manage'] as Action[]) {
+      expect(can('creator', a)).toBe(false);
+    }
+  });
 });

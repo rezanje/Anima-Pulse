@@ -59,7 +59,7 @@ export function DashboardClient({
 
   const subText = !isOwnDashboard
     ? `Ini ringkasan performa konten dan kehadiran ${user.name} bulan ini.`
-    : role === 'staff'
+    : role === 'staff' || role === 'creator'
     ? 'Ini ringkasan performa konten dan kehadiran kamu minggu ini.'
     : role === 'manager'
     ? 'Ini ringkasan performa tim media sosial Anima Companion hari ini.'

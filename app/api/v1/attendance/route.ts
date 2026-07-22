@@ -16,8 +16,8 @@ export async function GET(req: Request) {
     const month = parseInt(url.searchParams.get('month') ?? String(new Date().getMonth() + 1), 10);
     const year = parseInt(url.searchParams.get('year') ?? String(new Date().getFullYear()), 10);
 
-    // Staff may only query their own attendance
-    if (session.role === 'staff' && requestedUserId !== session.user.id) {
+    // Staff/Konten Kreator may only query their own attendance
+    if ((session.role === 'staff' || session.role === 'creator') && requestedUserId !== session.user.id) {
       return fail(403, 'forbidden');
     }
 
