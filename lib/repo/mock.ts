@@ -7,13 +7,13 @@ import path from 'node:path';
 import type {
   Repo, User, Role, Attendance, AttendanceStatus, Submission, NewSubmission,
   Kol, NewKol, KolGrowthEntry, VaultItem, NewVaultItem, AuditLog, ErTargets, TeamSummaryRow,
-  ContentPlan, NewContentPlan,
+  ContentPlan, NewContentPlan, Pillar, NewPillar,
 } from './types';
 import { calcER, attendanceStatus, avgOf, trendDelta } from '@/lib/er';
 import {
   SEED_USERS, SEED_SUBMISSIONS, SEED_KOLS, SEED_KOL_GROWTH, SEED_VAULT,
   SEED_ER_HISTORY, SEED_ER_TARGETS, SEED_TODAY_ATTENDANCE, SEED_ATTENDANCE_PCT,
-  SEED_CONTENT_PLANS,
+  SEED_CONTENT_PLANS, SEED_PILLARS,
 } from './seed';
 
 interface Store {
@@ -24,6 +24,7 @@ interface Store {
   growth: KolGrowthEntry[];
   vault: VaultItem[];
   contentPlans: ContentPlan[];
+  pillars: Pillar[];
   audit: AuditLog[];
   erTargets: ErTargets;
 }
@@ -85,6 +86,7 @@ function seedStore(): Store {
     growth: structuredClone(SEED_KOL_GROWTH),
     vault: structuredClone(SEED_VAULT),
     contentPlans: structuredClone(SEED_CONTENT_PLANS),
+    pillars: structuredClone(SEED_PILLARS),
     audit: [],
     erTargets: { ...SEED_ER_TARGETS },
   };
@@ -107,6 +109,9 @@ export class MockRepo implements Repo {
         const parsed = JSON.parse(fs.readFileSync(DATA_FILE, 'utf8')) as Store;
         if (!parsed.contentPlans) {
           parsed.contentPlans = structuredClone(SEED_CONTENT_PLANS);
+        }
+        if (!parsed.pillars) {
+          parsed.pillars = structuredClone(SEED_PILLARS);
         }
         return parsed;
       }
@@ -211,6 +216,7 @@ export class MockRepo implements Repo {
       views: s.views, likes: s.likes, comments: s.comments, shares: s.shares, followers: s.followers,
       er: calcER(s), // server-side; client-supplied er is never trusted
       submittedAt, editableUntil: new Date(Date.now() + 3_600_000).toISOString(),
+      pillarId: s.pillarId ?? null,
     };
     this.s.submissions.unshift(sub); this.save(); return sub;
   }
@@ -347,6 +353,32 @@ export class MockRepo implements Repo {
       this.s.contentPlans.splice(idx, 1);
       this.save();
     }
+  }
+
+  // ---------- content pillars ----------
+  async listPillars() {
+    return this.s.pillars;
+  }
+  async createPillar(p: NewPillar & { createdBy?: string }) {
+    const pillar: Pillar = {
+      id: uid('pil'),
+      name: p.name,
+      description: p.description,
+      exampleAngle: p.exampleAngle,
+      isActive: true,
+      createdBy: p.createdBy,
+      createdAt: new Date().toISOString(),
+    };
+    this.s.pillars.push(pillar);
+    this.save();
+    return pillar;
+  }
+  async updatePillar(id: string, patch: Partial<NewPillar> & { isActive?: boolean }) {
+    const pillar = this.s.pillars.find((x) => x.id === id);
+    if (!pillar) throw new Error('not_found');
+    Object.assign(pillar, patch);
+    this.save();
+    return pillar;
   }
 
   // ---------- settings ----------

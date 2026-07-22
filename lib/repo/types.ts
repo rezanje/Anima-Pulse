@@ -47,6 +47,23 @@ export interface Submission {
   er: number; // computed server-side
   submittedAt: string; // ISO
   editableUntil: string; // ISO (submittedAt + 1h)
+  pillarId?: string | null;
+}
+
+export interface Pillar {
+  id: string;
+  name: string;
+  description: string;
+  exampleAngle?: string;
+  isActive: boolean;
+  createdBy?: string;
+  createdAt?: string;
+}
+
+export interface NewPillar {
+  name: string;
+  description: string;
+  exampleAngle?: string;
 }
 
 export interface KolContact {
@@ -134,6 +151,7 @@ export interface NewSubmission {
   comments: number;
   shares: number;
   followers: number;
+  pillarId?: string | null;
 }
 
 export interface NewKol {
@@ -253,6 +271,11 @@ export interface Repo {
   createContentPlan(plan: NewContentPlan & { createdBy?: string }): Promise<ContentPlan>;
   updateContentPlan(id: string, patch: Partial<NewContentPlan>): Promise<ContentPlan>;
   deleteContentPlan(id: string): Promise<void>;
+
+  // content pillars (guide staff consult before picking what to create)
+  listPillars(): Promise<Pillar[]>;
+  createPillar(p: NewPillar & { createdBy?: string }): Promise<Pillar>;
+  updatePillar(id: string, patch: Partial<NewPillar> & { isActive?: boolean }): Promise<Pillar>; // throws 'not_found'
 
   // settings
   getErTargets(): Promise<ErTargets>;

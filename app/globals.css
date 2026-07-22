@@ -1062,11 +1062,26 @@ a { color: var(--accent); text-decoration: none; }
   flex: 1;
   font-family: var(--font-sans);
 }
-.kol-grid {
+.kol-grid, .pillar-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
   gap: var(--space-4);
 }
+.pillar-card { align-items: flex-start; }
+.pillar-desc { color: var(--text-secondary); font-size: 13.5px; margin: 0; }
+.pillar-example {
+  background: var(--surface-2, var(--bg-subtle, rgba(0,0,0,0.03)));
+  border-radius: var(--radius-md, 8px);
+  padding: var(--space-3);
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  width: 100%;
+}
+.pillar-example p { margin: 0; font-size: 13px; color: var(--text-primary); }
+.pillar-card-inactive { opacity: 0.6; }
+.pillar-inactive { margin-top: var(--space-2); }
+.pillar-inactive summary { cursor: pointer; color: var(--text-secondary); font-size: 13px; margin-bottom: var(--space-3); }
 .kol-card {
   background: var(--surface);
   border: 1px solid var(--border);
@@ -2482,6 +2497,61 @@ a { color: var(--accent); text-decoration: none; }
   flex-direction: column;
   gap: var(--space-3);
 }
+
+/* ------------------- SIDE DRAWER ------------------- */
+.drawer-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(10, 11, 9, 0.4);
+  backdrop-filter: blur(5px);
+  z-index: 100;
+  display: flex;
+  justify-content: flex-end;
+  animation: fadeInModal 0.2s ease-out;
+}
+.drawer {
+  background: var(--surface);
+  border-left: 1px solid var(--border);
+  box-shadow: var(--shadow-lg);
+  width: 100%;
+  max-width: 440px;
+  height: 100%;
+  overflow-y: auto;
+  padding: var(--space-5);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  animation: slideInDrawer 0.2s ease-out;
+}
+.drawer-wide {
+  max-width: 640px;
+}
+.drawer-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: var(--space-3);
+  padding-bottom: var(--space-4);
+  border-bottom: 1px solid var(--border);
+}
+@keyframes slideInDrawer {
+  from { transform: translateX(24px); opacity: 0; }
+  to { transform: translateX(0); opacity: 1; }
+}
+
+.form-stack {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+.form-row {
+  display: flex;
+  gap: var(--space-3);
+}
+.form-row > * { flex: 1; min-width: 0; }
 .approval-title-box {
   margin: 0;
   font-size: 12px;

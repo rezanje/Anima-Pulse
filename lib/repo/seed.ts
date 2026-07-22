@@ -140,7 +140,7 @@ export const VAULT_TAGS = ['Hook', 'Storytelling', 'Competitor', 'Trend', 'Forma
 export const KOL_NICHES = ['beauty', 'lifestyle', 'comedy', 'daily-life', 'fashion', 'aesthetic', 'finance', 'edukasi', 'parenting', 'food', 'gaming', 'tech', 'fitness', 'motivasi', 'kuliner', 'jalan-jalan', 'interior', 'home', 'otomotif', 'review'];
 export const SEED_ER_TARGETS: ErTargets = { tiktok: 6.0, instagram: 3.5 };
 
-import { ContentPlan } from './types';
+import { ContentPlan, Pillar } from './types';
 
 export const SEED_CONTENT_PLANS: ContentPlan[] = [
   {
@@ -283,4 +283,48 @@ export const SEED_CONTENT_PLANS: ContentPlan[] = [
     approval: false,
     createdBy: "u02",
   }
+];
+
+// Guide staff consult before deciding what content to make.
+export const SEED_PILLARS: Pillar[] = [
+  {
+    id: 'pil01',
+    name: 'Edukasi',
+    description: 'Konten yang ngajarin sesuatu — tips, cara pakai produk, fakta seputar niche.',
+    exampleAngle: '"3 kesalahan yang bikin kulitmu makin kusam" — hook masalah, isi solusi singkat.',
+    isActive: true,
+    createdBy: 'u06',
+  },
+  {
+    id: 'pil02',
+    name: 'Hiburan',
+    description: 'Konten ringan, lucu, relate — buat nambah watch time dan share.',
+    exampleAngle: 'POV/skit harian yang relate ke audiens, atau reaksi ke trend yang lagi rame.',
+    isActive: true,
+    createdBy: 'u06',
+  },
+  {
+    id: 'pil03',
+    name: 'Promo/Soft-sell',
+    description: 'Konten yang ngangkat produk/brand tanpa berasa hard-selling.',
+    exampleAngle: 'Day-in-the-life yang naturally nampilin produk, bukan iklan langsung.',
+    isActive: true,
+    createdBy: 'u06',
+  },
+  {
+    id: 'pil04',
+    name: 'Trend/Format viral',
+    description: 'Ikut format/audio/challenge yang lagi naik, di-remix sesuai brand.',
+    exampleAngle: 'Ambil trend audio minggu ini, adaptasi konteksnya ke niche brand.',
+    isActive: true,
+    createdBy: 'u06',
+  },
+  {
+    id: 'pil05',
+    name: 'Behind the scenes',
+    description: 'Nunjukin proses/keseharian tim — bikin brand terasa manusiawi.',
+    exampleAngle: '"Sehari jadi content creator di sini" — proses syuting sampai upload.',
+    isActive: true,
+    createdBy: 'u06',
+  },
 ];

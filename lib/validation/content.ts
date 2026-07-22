@@ -11,6 +11,8 @@ const submissionBase = z.object({
   comments: z.number().int().nonnegative(),
   shares: z.number().int().nonnegative(),
   followers: z.number().int().nonnegative(),
+  // empty-string select value ("no pillar chosen") must not fail validation
+  pillarId: z.preprocess((v) => (v === '' ? undefined : v), z.string().min(1).optional().nullable()),
 });
 
 const noViewsContradiction = (d: { views: number; likes?: number; comments?: number; shares?: number }) =>

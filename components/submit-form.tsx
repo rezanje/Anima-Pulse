@@ -14,7 +14,7 @@ import { calcER } from '@/lib/er';
 import { apiPost, apiGet, apiPut } from '@/lib/client';
 import { Field, Button, Toast, StatusPill, Tabs, PlatformBadge } from '@/components/widgets';
 import { I } from '@/components/icons';
-import type { Submission } from '@/lib/repo/types';
+import type { Submission, Pillar } from '@/lib/repo/types';
 import { avgOf } from '@/lib/er';
 import { fmtNum } from '@/lib/format';
 
@@ -28,6 +28,11 @@ export function SubmitForm() {
 
   const [toast, setToast] = useState('');
   const [serverError, setServerError] = useState<string | null>(null);
+  const [pillars, setPillars] = useState<Pillar[]>([]);
+
+  useEffect(() => {
+    apiGet<Pillar[]>('/pillars').then(setPillars).catch(() => setPillars([]));
+  }, []);
 
   const {
     register,
@@ -212,6 +217,15 @@ export function SubmitForm() {
                     className={'input ' + (urlValid === false ? 'has-error' : urlValid ? 'has-success' : '')}
                     placeholder={wPlatform === 'tiktok' ? 'https://tiktok.com/@username/video/...' : 'https://instagram.com/p/...'}
                   />
+                </Field>
+
+                <Field label="Content pillar" hint="opsional — tandai tema konten ini">
+                  <select {...register('pillarId')} className="select" defaultValue="">
+                    <option value="">Tidak ditandai</option>
+                    {pillars.filter((p) => p.isActive).map((p) => (
+                      <option key={p.id} value={p.id}>{p.name}</option>
+                    ))}
+                  </select>
                 </Field>
               </div>
 

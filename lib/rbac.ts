@@ -19,7 +19,9 @@ export type Action =
   | 'user-manage'
   | 'er-target-set'
   | 'audit-view'
-  | 'tracker-view';
+  | 'tracker-view'
+  | 'pillar-view'
+  | 'pillar-manage';
 
 const M: Record<Action, Role[]> = {
   clock: ['staff', 'manager', 'admin'],
@@ -37,6 +39,8 @@ const M: Record<Action, Role[]> = {
   'er-target-set': ['admin'],
   'audit-view': ['admin'],
   'tracker-view': ['staff', 'manager', 'admin'],
+  'pillar-view': ['staff', 'manager', 'admin'],
+  'pillar-manage': ['manager', 'admin'],
 };
 
 export function can(role: Role, action: Action): boolean {

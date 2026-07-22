@@ -8,7 +8,7 @@ import { createClient, type SupabaseClient } from '@supabase/supabase-js';
 import type {
   Repo, User, Role, Attendance, Submission, NewSubmission, Kol, NewKol,
   KolGrowthEntry, VaultItem, NewVaultItem, AuditLog, ErTargets, TeamSummaryRow,
-  ContentPlan, NewContentPlan,
+  ContentPlan, NewContentPlan, Pillar, NewPillar,
 } from './types';
 import { calcER, avgOf, trendDelta, attendanceStatus } from '@/lib/er';
 
@@ -34,7 +34,8 @@ const toUser = (r: any): User => ({
   loginCode: r.login_code || undefined
 });
 const toAtt = (r: any): Attendance => ({ id: r.id, userId: r.user_id, date: r.date, clockInAt: r.clock_in_at, clockOutAt: r.clock_out_at, status: r.status, ipAddress: r.ip_address });
-const toSub = (r: any): Submission => ({ id: r.id, userId: r.user_id, url: r.url, platform: r.platform, title: r.title, views: r.views, likes: r.likes, comments: r.comments, shares: r.shares, followers: r.followers_at_post, er: Number(r.er_rate), submittedAt: r.submitted_at, editableUntil: r.editable_until });
+const toSub = (r: any): Submission => ({ id: r.id, userId: r.user_id, url: r.url, platform: r.platform, title: r.title, views: r.views, likes: r.likes, comments: r.comments, shares: r.shares, followers: r.followers_at_post, er: Number(r.er_rate), submittedAt: r.submitted_at, editableUntil: r.editable_until, pillarId: r.pillar_id ?? null });
+const toPillar = (r: any): Pillar => ({ id: r.id, name: r.name, description: r.description ?? '', exampleAngle: r.example_angle ?? undefined, isActive: r.is_active, createdBy: r.created_by ?? undefined, createdAt: r.created_at ?? undefined });
 const toKol = (r: any): Kol => ({ id: r.id, name: r.name, handle: r.handle, platform: r.platform, niche: r.niche ?? [], followers: r.followers, avgViews: r.avg_views, avgER: Number(r.avg_er), ratePerContent: Number(r.rate_per_content), status: r.status, contact: r.contact ?? { wa: '', email: '' }, notes: r.notes ?? '', createdBy: r.created_by, isDeleted: r.is_deleted });
 const toGrowth = (r: any): KolGrowthEntry => ({ id: r.id, kolId: r.kol_id, date: r.recorded_date, followers: r.followers_count, recordedBy: r.recorded_by });
 const toVault = (r: any): VaultItem => ({ id: r.id, url: r.url, title: r.title, platform: r.platform, thumbnailUrl: r.thumbnail_url, tags: r.tags ?? [], savedBy: r.saved_by, savedAt: r.saved_at, color: r.color ?? undefined });
@@ -152,6 +153,7 @@ export class SupabaseRepo implements Repo {
       views: s.views, likes: s.likes, comments: s.comments, shares: s.shares, followers_at_post: s.followers,
       er_rate: calcER(s), submitted_at: submittedAt.toISOString(),
       editable_until: new Date(submittedAt.getTime() + 3_600_000).toISOString(),
+      pillar_id: s.pillarId ?? null,
     }).select('*').single();
     if (error) throw new Error('duplicate_url');
     return toSub(data);
@@ -326,6 +328,33 @@ export class SupabaseRepo implements Repo {
   async deleteContentPlan(id: string) {
     const { error } = await this.db.from('content_plans').delete().eq('id', id);
     if (error) throw new Error(error.message);
+  }
+
+  // ---------- content pillars ----------
+  async listPillars() {
+    const { data } = await this.db.from('content_pillars').select('*').order('created_at', { ascending: true });
+    return (data ?? []).map(toPillar);
+  }
+  async createPillar(p: NewPillar & { createdBy?: string }) {
+    const { data, error } = await this.db.from('content_pillars').insert({
+      name: p.name,
+      description: p.description,
+      example_angle: p.exampleAngle ?? null,
+      created_by: p.createdBy ?? null,
+    }).select('*').single();
+    if (error) throw new Error(error.message);
+    return toPillar(data);
+  }
+  async updatePillar(id: string, patch: Partial<NewPillar> & { isActive?: boolean }) {
+    const dbPatch: any = {};
+    if (patch.name !== undefined) dbPatch.name = patch.name;
+    if (patch.description !== undefined) dbPatch.description = patch.description;
+    if (patch.exampleAngle !== undefined) dbPatch.example_angle = patch.exampleAngle;
+    if (patch.isActive !== undefined) dbPatch.is_active = patch.isActive;
+
+    const { data, error } = await this.db.from('content_pillars').update(dbPatch).eq('id', id).select('*').single();
+    if (error) throw new Error('not_found');
+    return toPillar(data);
   }
 
   // ---------- settings ----------
