@@ -4,8 +4,8 @@
 // Handles Kanban, Calendar, List views and CRUD mutations.
 // ============================================================
 import { useState, useMemo, useEffect, useCallback } from 'react';
-import type { ContentPlan, NewContentPlan, User, Role } from '@/lib/repo/types';
-import { api, apiPost, apiPut } from '@/lib/client';
+import type { ContentPlan, NewContentPlan, User, Role, Pillar } from '@/lib/repo/types';
+import { api, apiGet, apiPost, apiPut } from '@/lib/client';
 import { fmtDateWIB } from '@/lib/format';
 import {
   Button,
@@ -20,7 +20,8 @@ const FUNNEL_OPTIONS = ['Top Funnel', 'Mid Funnel', 'Bottom Funnel'];
 const PLATFORM_OPTIONS = ['Mirror', 'TikTok', 'Instagram', 'YouTube'];
 const FORMAT_OPTIONS = ['Video', 'Image', 'Carousel'];
 const PROGRESS_OPTIONS = ['Draft', 'Sudah take', 'Selesai Editing', 'Selesai Upload'];
-const CATEGORY_OPTIONS = ['Trends', 'Edukasi', 'Entertainment', 'Promo', 'Product Focus', 'Daily Life'];
+// Fallback only for environments where /pillars hasn't loaded yet (or has no active pillars).
+const CATEGORY_FALLBACK = ['Trends', 'Edukasi', 'Entertainment', 'Promo', 'Product Focus', 'Daily Life'];
 
 interface Props {
   initialPlans: ContentPlan[];
@@ -713,6 +714,16 @@ interface PlanModalProps {
 
 function PlanModal({ plan, isNew, canApprove, onSave, onClose }: PlanModalProps) {
   const [form, setForm] = useState<ContentPlan>({ ...plan });
+  const [pillars, setPillars] = useState<Pillar[]>([]);
+
+  useEffect(() => {
+    apiGet<Pillar[]>('/pillars').then(setPillars).catch(() => setPillars([]));
+  }, []);
+
+  const categoryOptions = useMemo(() => {
+    const active = pillars.filter((p) => p.isActive).map((p) => p.name);
+    return active.length > 0 ? active : CATEGORY_FALLBACK;
+  }, [pillars]);
 
   const update = (key: keyof ContentPlan, val: unknown) => {
     setForm((f) => ({ ...f, [key]: val }));
@@ -771,9 +782,9 @@ function PlanModal({ plan, isNew, canApprove, onSave, onClose }: PlanModalProps)
                     {FUNNEL_OPTIONS.map((o) => <option key={o} value={o}>{o}</option>)}
                   </select>
                 </Field>
-                <Field label="Kategori">
+                <Field label="Kategori" hint="dari Content Pillar">
                   <select className="select" value={form.category} onChange={(e) => update('category', e.target.value)}>
-                    {CATEGORY_OPTIONS.map((o) => <option key={o} value={o}>{o}</option>)}
+                    {categoryOptions.map((o) => <option key={o} value={o}>{o}</option>)}
                   </select>
                 </Field>
               </div>
