@@ -84,16 +84,16 @@ function SaveForm({ onClose, onSaved }: SaveFormProps) {
   };
 
   return (
-    <div className="slideover-overlay" onClick={(e) => e.target === e.currentTarget && onClose()}>
-      <div className="slideover">
-        <div className="slideover-head">
+    <div className="drawer-overlay" onClick={(e) => e.target === e.currentTarget && onClose()}>
+      <div className="drawer">
+        <div className="drawer-head">
           <h2 className="card-h">Simpan konten baru</h2>
           <button className="icon-btn" onClick={onClose} aria-label="Tutup">
             {I.close}
           </button>
         </div>
 
-        <form className="slideover-body" onSubmit={handleSubmit} noValidate>
+        <form className="form-stack" onSubmit={handleSubmit} noValidate>
           {/* URL */}
           <label className="field">
             <span className="field-label">URL konten</span>
@@ -195,7 +195,7 @@ function SaveForm({ onClose, onSaved }: SaveFormProps) {
 
           {errors.form && <div className="field-error">{errors.form}</div>}
 
-          <div className="slideover-foot">
+          <div className="form-row">
             <Button variant="outline" onClick={onClose} disabled={busy}>
               Batal
             </Button>

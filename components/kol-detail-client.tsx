@@ -182,7 +182,7 @@ export function KolDetailClient({
           <div className="kdh-handle">
             <PlatformBadge platform={kol.platform} />
             <span>·</span>
-            <span>@{kol.handle}</span>
+            <span>{kol.handle}</span>
           </div>
           <div className="kdh-niche">
             {kol.niche.map((n) => (

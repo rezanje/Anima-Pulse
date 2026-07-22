@@ -717,7 +717,16 @@ function PlanModal({ plan, isNew, canApprove, onSave, onClose }: PlanModalProps)
   const [pillars, setPillars] = useState<Pillar[]>([]);
 
   useEffect(() => {
-    apiGet<Pillar[]>('/pillars').then(setPillars).catch(() => setPillars([]));
+    apiGet<Pillar[]>('/pillars').then((data) => {
+      setPillars(data);
+      // New plans default to a stale placeholder category (see handleOpenAddModal)
+      // until pillars load — swap it for the first live pillar once available.
+      if (isNew) {
+        const firstActive = data.find((p) => p.isActive)?.name;
+        if (firstActive) setForm((f) => ({ ...f, category: firstActive }));
+      }
+    }).catch(() => setPillars([]));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const categoryOptions = useMemo(() => {

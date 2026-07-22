@@ -1666,7 +1666,7 @@ a { color: var(--accent); text-decoration: none; }
     grid-template-areas: "growth" "roi" "notes" "contact";
   }
   .team-row, .t-row { grid-template-columns: 1.4fr 0.6fr 0.7fr 0.9fr 0.7fr 0.9fr; }
-  .t-row, .team-row { grid-template-columns: 1.4fr 0.6fr 0.7fr 0.7fr 0.9fr 0.7fr 0.9fr; }
+  .t-row, .team-row, .screen-settings .t-row { grid-template-columns: 1.4fr 0.6fr 0.7fr 0.7fr 0.9fr 0.7fr 0.9fr; }
 }
 
 @media (max-width: 820px) {
@@ -1714,7 +1714,7 @@ a { color: var(--accent); text-decoration: none; }
   .kpi:nth-child(-n+2) { border-bottom: 1px solid var(--border); }
   .card-clock { flex-direction: column; }
   .card-clock-right { border-left: 0; border-top: 1px solid var(--border); }
-  .team-row, .t-row {
+  .team-row, .t-row, .screen-settings .t-row {
     grid-template-columns: 1fr;
     padding: 12px;
     gap: 8px;
