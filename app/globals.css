@@ -1604,6 +1604,7 @@ button.niche-pill.active {
   padding: 24px;
   position: relative;
   overflow: hidden;
+  background: var(--app-gradient);
 }
 .login-bg {
   position: absolute;
@@ -1617,7 +1618,7 @@ button.niche-pill.active {
     linear-gradient(var(--border) 1px, transparent 1px),
     linear-gradient(90deg, var(--border) 1px, transparent 1px);
   background-size: 48px 48px;
-  opacity: 0.6;
+  opacity: 0.25;
   mask-image: radial-gradient(circle at 50% 40%, black, transparent 70%);
 }
 .login-bg-glow {
@@ -1636,8 +1637,10 @@ button.niche-pill.active {
   width: 100%;
   max-width: 440px;
   padding: var(--space-8);
-  background: var(--surface);
-  border: 1px solid var(--border);
+  background: rgba(255, 255, 255, 0.72);
+  backdrop-filter: blur(var(--glass-blur));
+  -webkit-backdrop-filter: blur(var(--glass-blur));
+  border: 1px solid var(--glass-brd);
   border-radius: var(--radius-xl);
   box-shadow: var(--shadow-lg);
   display: flex;
