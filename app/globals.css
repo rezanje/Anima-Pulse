@@ -98,7 +98,8 @@
 html, body { margin: 0; padding: 0; height: 100%; }
 body {
   font-family: var(--font-sans);
-  background: var(--bg);
+  background: var(--app-gradient);
+  background-attachment: fixed;
   color: var(--text-primary);
   font-size: 14px;
   line-height: 1.5;
@@ -118,17 +119,35 @@ a { color: var(--accent); text-decoration: none; }
 .app-shell {
   display: grid;
   grid-template-columns: var(--sidebar-w) 1fr;
-  min-height: 100vh;
+  height: calc(100vh - (var(--frame-gap) * 2));
+  margin: var(--frame-gap);
+  border-radius: 28px;
+  border: 1px solid var(--glass-brd);
+  box-shadow: var(--shadow-lg);
+  overflow: hidden;
+  position: relative;
+  isolation: isolate;
+}
+/* The blur lives here, never on .app-shell itself: backdrop-filter would make
+   the shell a containing block for position:fixed children, clipping every
+   drawer and toast to the frame. */
+.app-shell::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: var(--glass);
+  backdrop-filter: blur(var(--glass-blur));
+  -webkit-backdrop-filter: blur(var(--glass-blur));
 }
 
 .sidebar {
-  background: var(--surface-2);
-  border-right: 1px solid var(--border);
+  background: var(--glass-2);
+  border-right: 1px solid var(--glass-brd);
   display: flex;
   flex-direction: column;
-  position: sticky;
-  top: 0;
-  height: 100vh;
+  height: 100%;
+  overflow-y: auto;
   z-index: 20;
 }
 
@@ -2687,6 +2706,8 @@ button.niche-pill.active {
 
 /* Responsive Overrides */
 @media (max-width: 900px) {
+  :root { --frame-gap: 0px; }
+  .app-shell { border-radius: 0; border: 0; box-shadow: none; }
   .tracker-stats-row {
     grid-template-columns: repeat(2, 1fr);
   }
