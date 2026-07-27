@@ -405,6 +405,10 @@ a { color: var(--accent); text-decoration: none; }
 .card-clock-left .card-clock-sub,
 .card-clock-left .eyebrow { color: rgba(255, 255, 255, 0.75); }
 .card-clock-left .mono-num { color: #FFFFFF; }
+.card-clock-left .btn-primary {
+  background: #FFFFFF;
+  color: var(--accent-deep);
+}
 .card-clock-time {
   display: flex;
   flex-direction: column;
