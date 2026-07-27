@@ -253,12 +253,12 @@ a { color: var(--accent); text-decoration: none; }
 }
 .topbar {
   height: var(--topbar-h);
-  border-bottom: 1px solid var(--border);
+  border-bottom: 1px solid var(--glass-brd);
   padding: 0 var(--space-6);
   display: flex;
   align-items: center;
   gap: var(--space-4);
-  background: var(--bg);
+  background: transparent;
   position: sticky;
   top: 0;
   z-index: 10;
@@ -1831,8 +1831,10 @@ button.niche-pill.active {
     bottom: 0;
     left: 0;
     right: 0;
-    background: var(--surface);
-    border-top: 1px solid var(--border);
+    background: var(--glass);
+    backdrop-filter: blur(var(--glass-blur));
+    -webkit-backdrop-filter: blur(var(--glass-blur));
+    border-top: 1px solid var(--glass-brd);
     padding: 4px 4px calc(4px + env(safe-area-inset-bottom));
     z-index: 30;
   }
@@ -1866,7 +1868,7 @@ button.niche-pill.active {
   position: fixed; right: 18px; bottom: 84px; z-index: 60;
   width: 40px; height: 40px; border-radius: 50%;
   background: var(--surface); border: 1px solid var(--border);
-  box-shadow: 0 4px 16px rgba(0,0,0,0.12); cursor: pointer;
+  box-shadow: var(--shadow-md); cursor: pointer;
   font-size: 18px; color: var(--text-secondary);
 }
 @media (min-width: 900px) { .dev-switch-fab { bottom: 18px; } }
@@ -2608,7 +2610,7 @@ button.niche-pill.active {
   animation: fadeInModal 0.2s ease-out;
 }
 .drawer {
-  background: var(--surface);
+  background: #FFFFFF;
   border-left: 1px solid var(--border);
   box-shadow: var(--shadow-lg);
   width: 100%;
