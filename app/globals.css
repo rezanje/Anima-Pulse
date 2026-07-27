@@ -410,6 +410,7 @@ a { color: var(--accent); text-decoration: none; }
   background: #FFFFFF;
   color: var(--accent-deep);
 }
+[data-theme="dark"] .card-clock.is-in .card-clock-time .mono-num { color: var(--accent); }
 .card-clock.is-in .card-clock-left .card-clock-time .mono-num { color: #FFFFFF; }
 .card-clock-left .btn-primary:hover:not(:disabled) {
   background: #F2F0FD;
@@ -427,8 +428,6 @@ a { color: var(--accent); text-decoration: none; }
   line-height: 1;
 }
 [data-display="editorial"] .card-clock-time .mono-num { font-family: var(--font-display); font-size: 52px; }
-.card-clock.is-in .card-clock-time .mono-num { color: var(--accent-deep); }
-[data-theme="dark"] .card-clock.is-in .card-clock-time .mono-num { color: var(--accent); }
 .card-clock-sub { color: var(--text-secondary); font-size: 13px; margin-top: 4px; }
 .card-clock-right {
   padding: var(--space-5) var(--space-6);
@@ -683,6 +682,11 @@ a { color: var(--accent); text-decoration: none; }
 .status-pill.tone-warning  { background: var(--warning-soft); color: var(--warning); }
 .status-pill.tone-danger   { background: var(--danger-soft); color: var(--danger); }
 .status-pill.tone-info     { background: var(--info-soft); color: var(--info); }
+
+/* The clock card's gradient is too dark for the translucent tone backgrounds,
+   so pills inside it get an opaque backing that keeps their hue. */
+.card-clock-left .status-pill.tone-positive { background: #FFFFFF; color: var(--positive); }
+.card-clock-left .status-pill.tone-warning  { background: #FFFFFF; color: var(--warning); }
 
 .delta {
   display: inline-flex;
@@ -1793,6 +1797,9 @@ button.niche-pill.active {
     transform: translateX(-100%);
     transition: transform 0.2s;
     z-index: 50;
+    background: var(--surface);
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
   }
   .sidebar.mobile-open { transform: translateX(0); }
   .sidebar-close-mobile {
