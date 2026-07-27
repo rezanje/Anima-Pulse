@@ -189,14 +189,48 @@ export class SupabaseRepo implements Repo {
   }
   async teamSummary(from?: string, to?: string): Promise<TeamSummaryRow[]> {
     const users = (await this.listUsers()).filter((u) => u.role === 'staff' || u.role === 'manager' || u.role === 'creator');
-    const out: TeamSummaryRow[] = [];
-    for (const user of users) {
-      const subs = await this.listSubmissions({ userId: user.id, from, to });
-      const history = await this.erHistory(user.id);
-      const att = await this.getTodayAttendance(user.id);
-      out.push({ user, count: subs.length, avgER: avgOf(subs.map((s) => s.er)), trend: trendDelta(history), attendance: att?.status ?? null });
+    if (users.length === 0) return [];
+    const ids = users.map((u) => u.id);
+    const today = new Date(Date.now() + 7 * 3_600_000).toISOString().slice(0, 10);
+
+    // Three bulk queries instead of three per user — this page was doing
+    // 1 + 3N sequential round-trips, which is what made it slow to open.
+    // erHistory is a separate fetch because the trend ignores the from/to filter.
+    let scoped = this.db.from('content_submissions').select('user_id, er_rate').in('user_id', ids);
+    if (from) scoped = scoped.gte('submitted_at', from);
+    if (to) scoped = scoped.lte('submitted_at', to);
+
+    const [scopedRes, historyRes, attRes] = await Promise.all([
+      scoped,
+      this.db.from('content_submissions').select('user_id, er_rate').in('user_id', ids).order('submitted_at', { ascending: true }),
+      this.db.from('attendances').select('user_id, status').in('user_id', ids).eq('date', today),
+    ]);
+
+    const ersByUser = new Map<string, number[]>();
+    for (const r of scopedRes.data ?? []) {
+      const list = ersByUser.get(r.user_id) ?? [];
+      list.push(Number(r.er_rate));
+      ersByUser.set(r.user_id, list);
     }
-    return out;
+    const historyByUser = new Map<string, number[]>();
+    for (const r of historyRes.data ?? []) {
+      const list = historyByUser.get(r.user_id) ?? [];
+      list.push(Number(r.er_rate));
+      historyByUser.set(r.user_id, list);
+    }
+    const attByUser = new Map<string, string>();
+    for (const r of attRes.data ?? []) attByUser.set(r.user_id, r.status);
+
+    return users.map((user) => {
+      const ers = ersByUser.get(user.id) ?? [];
+      return {
+        user,
+        count: ers.length,
+        avgER: avgOf(ers),
+        trend: trendDelta(historyByUser.get(user.id) ?? []),
+        attendance: (attByUser.get(user.id) as TeamSummaryRow['attendance']) ?? null,
+      };
+    });
   }
 
   // ---------- kol ----------
