@@ -5,7 +5,7 @@
 // Manager/Super Admin can add pillars and toggle them active/inactive.
 // ============================================================
 import { useState } from 'react';
-import { apiPost, apiPut } from '@/lib/client';
+import { api, apiPost, apiPut } from '@/lib/client';
 import { Button, Field, Toast } from '@/components/widgets';
 import { I } from '@/components/icons';
 import type { Pillar } from '@/lib/repo/types';
@@ -55,6 +55,17 @@ export function PillarsClient({ initialPillars, canManage }: { initialPillars: P
       setToast(updated.isActive ? 'Pillar diaktifkan' : 'Pillar dinonaktifkan');
     } catch (err) {
       setToast(err instanceof Error ? err.message : 'Gagal mengubah status');
+    }
+  };
+
+  const removePillar = async (pillar: Pillar) => {
+    if (!confirm(`Hapus pillar "${pillar.name}"? Konten yang sudah ditandai pillar ini tetap ada, tapi tagnya hilang.`)) return;
+    try {
+      await api(`/pillars/${pillar.id}`, { method: 'DELETE' });
+      setPillars((prev) => prev.filter((p) => p.id !== pillar.id));
+      setToast('Pillar dihapus');
+    } catch (err) {
+      setToast(err instanceof Error ? err.message : 'Gagal menghapus pillar');
     }
   };
 
@@ -122,9 +133,14 @@ export function PillarsClient({ initialPillars, canManage }: { initialPillars: P
               </div>
             )}
             {canManage && (
-              <button type="button" className="btn btn-ghost btn-sm" onClick={() => toggleActive(p)}>
-                Nonaktifkan
-              </button>
+              <div className="pillar-actions">
+                <button type="button" className="btn btn-ghost btn-sm" onClick={() => toggleActive(p)}>
+                  Nonaktifkan
+                </button>
+                <button type="button" className="btn btn-ghost btn-sm btn-danger" onClick={() => removePillar(p)}>
+                  Hapus
+                </button>
+              </div>
             )}
           </div>
         ))}
@@ -140,9 +156,14 @@ export function PillarsClient({ initialPillars, canManage }: { initialPillars: P
               <div key={p.id} className="card pillar-card pillar-card-inactive">
                 <h3 className="card-h">{p.name}</h3>
                 <p className="pillar-desc">{p.description}</p>
-                <button type="button" className="btn btn-ghost btn-sm" onClick={() => toggleActive(p)}>
-                  Aktifkan
-                </button>
+                <div className="pillar-actions">
+                  <button type="button" className="btn btn-ghost btn-sm" onClick={() => toggleActive(p)}>
+                    Aktifkan
+                  </button>
+                  <button type="button" className="btn btn-ghost btn-sm btn-danger" onClick={() => removePillar(p)}>
+                    Hapus
+                  </button>
+                </div>
               </div>
             ))}
           </div>

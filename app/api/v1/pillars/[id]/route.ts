@@ -25,3 +25,21 @@ export async function PUT(req: Request, { params }: { params: { id: string } }) 
     return ok(pillar);
   });
 }
+
+export async function DELETE(req: Request, { params }: { params: { id: string } }) {
+  return handle(async () => {
+    const session = await requirePermission('pillar-manage');
+    const repo = getRepo();
+    await repo.deletePillar(params.id);
+
+    await recordAudit({
+      userId: session.user.id,
+      action: 'delete_pillar',
+      resourceType: 'content_pillar',
+      resourceId: params.id,
+      ipAddress: clientIp(req),
+    });
+
+    return ok({ success: true });
+  });
+}

@@ -1080,6 +1080,9 @@ a { color: var(--accent); text-decoration: none; }
 }
 .pillar-example p { margin: 0; font-size: 13px; color: var(--text-primary); }
 .pillar-card-inactive { opacity: 0.6; }
+.pillar-actions { display: flex; gap: var(--space-2); flex-wrap: wrap; }
+.pillar-actions .btn-danger { color: var(--danger); }
+.pillar-actions .btn-danger:hover { background: var(--danger-soft); }
 .pillar-inactive { margin-top: var(--space-2); }
 .pillar-inactive summary { cursor: pointer; color: var(--text-secondary); font-size: 13px; margin-bottom: var(--space-3); }
 .kol-card {
@@ -1115,6 +1118,16 @@ a { color: var(--accent); text-decoration: none; }
   color: var(--text-secondary);
   border-radius: 4px;
   text-transform: lowercase;
+  border: 1px solid transparent;
+}
+/* clickable variant (KOL edit drawer) — needs a visible selected state */
+button.niche-pill { cursor: pointer; transition: background 0.12s, color 0.12s, border-color 0.12s; }
+button.niche-pill:hover { border-color: var(--border); }
+button.niche-pill.active {
+  background: var(--accent-soft);
+  border-color: var(--accent);
+  color: var(--accent-deep);
+  font-weight: 600;
 }
 .kol-metrics {
   display: grid;

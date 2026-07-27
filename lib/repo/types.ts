@@ -276,6 +276,7 @@ export interface Repo {
   listPillars(): Promise<Pillar[]>;
   createPillar(p: NewPillar & { createdBy?: string }): Promise<Pillar>;
   updatePillar(id: string, patch: Partial<NewPillar> & { isActive?: boolean }): Promise<Pillar>; // throws 'not_found'
+  deletePillar(id: string): Promise<void>; // submissions keep their tag as null
 
   // settings
   getErTargets(): Promise<ErTargets>;

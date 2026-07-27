@@ -118,4 +118,33 @@ describe('MockRepo pillar CRUD', () => {
     });
     expect(sub.pillarId).toBe(pillar.id);
   });
+
+  it('deletes a pillar and un-tags its submissions instead of losing them', async () => {
+    const pillar = await r.createPillar(validPillar);
+    const sub = await r.createSubmission({
+      userId: 'u01',
+      url: 'https://tiktok.com/@user/video/998',
+      platform: 'tiktok',
+      title: 'Konten edukasi',
+      views: 1000,
+      likes: 10,
+      comments: 1,
+      shares: 1,
+      followers: 500,
+      pillarId: pillar.id,
+    });
+
+    await r.deletePillar(pillar.id);
+
+    const pillars = await r.listPillars();
+    expect(pillars.find((p) => p.id === pillar.id)).toBeUndefined();
+
+    const kept = await r.getSubmission(sub.id);
+    expect(kept).not.toBeNull();
+    expect(kept?.pillarId).toBeNull();
+  });
+
+  it('deleting a non-existent pillar is a no-op', async () => {
+    await expect(r.deletePillar('pil-nonexistent')).resolves.toBeUndefined();
+  });
 });

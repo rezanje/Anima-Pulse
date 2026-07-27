@@ -357,6 +357,12 @@ export class SupabaseRepo implements Repo {
     return toPillar(data);
   }
 
+  async deletePillar(id: string) {
+    // content_submissions.pillar_id is `on delete set null` — tagged submissions survive
+    const { error } = await this.db.from('content_pillars').delete().eq('id', id);
+    if (error) throw new Error(error.message);
+  }
+
   // ---------- settings ----------
   async getErTargets() {
     const { data } = await this.db.from('er_targets').select('*');

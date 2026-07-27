@@ -381,6 +381,15 @@ export class MockRepo implements Repo {
     return pillar;
   }
 
+  async deletePillar(id: string) {
+    const idx = this.s.pillars.findIndex((x) => x.id === id);
+    if (idx === -1) return;
+    this.s.pillars.splice(idx, 1);
+    // mirror the DB's `on delete set null` on content_submissions.pillar_id
+    for (const s of this.s.submissions) if (s.pillarId === id) s.pillarId = null;
+    this.save();
+  }
+
   // ---------- settings ----------
   async getErTargets() { return this.s.erTargets; }
   async setErTargets(t: ErTargets) { this.s.erTargets = t; this.save(); return t; }
