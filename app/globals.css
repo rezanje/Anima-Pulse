@@ -9,20 +9,20 @@
   --font-display: 'Geist', sans-serif;
 
   /* Light tokens (default) */
-  --bg:          #F8F7F2;
-  --bg-deep:     #F1EFE8;
+  --bg:          #EEEBF9;
+  --bg-deep:     #E4DFF8;
   --surface:     #FFFFFF;
-  --surface-2:   #FBFAF6;
-  --surface-3:   #F4F2EC;
-  --border:      rgba(20, 24, 16, 0.08);
-  --border-strong: rgba(20, 24, 16, 0.14);
-  --text-primary:   #15201A;
-  --text-secondary: #5C6258;
-  --text-tertiary:  #8B9085;
+  --surface-2:   #F7F5FE;
+  --surface-3:   #EFECFB;
+  --border:      rgba(91, 75, 232, 0.10);
+  --border-strong: rgba(91, 75, 232, 0.18);
+  --text-primary:   #1E1B33;
+  --text-secondary: #5A5675;
+  --text-tertiary:  #8C88A6;
 
-  --accent:      #1D9E75;
-  --accent-deep: #0F7252;
-  --accent-soft: rgba(29, 158, 117, 0.10);
+  --accent:      #5B4BE8;
+  --accent-deep: #4536C4;
+  --accent-soft: rgba(91, 75, 232, 0.10);
 
   --positive: #1D9E75;
   --positive-soft: rgba(29, 158, 117, 0.12);
@@ -33,14 +33,14 @@
   --info:     #3B82B8;
   --info-soft: rgba(59, 130, 184, 0.10);
 
-  --shadow-sm: 0 1px 2px rgba(20, 24, 16, 0.04);
-  --shadow-md: 0 1px 3px rgba(20, 24, 16, 0.06), 0 4px 12px rgba(20, 24, 16, 0.04);
-  --shadow-lg: 0 4px 24px rgba(20, 24, 16, 0.08);
+  --shadow-sm: 0 1px 2px rgba(46, 38, 100, 0.05);
+  --shadow-md: 0 2px 6px rgba(46, 38, 100, 0.06), 0 8px 24px rgba(46, 38, 100, 0.06);
+  --shadow-lg: 0 8px 40px rgba(46, 38, 100, 0.12);
 
   --radius-sm: 6px;
   --radius-md: 10px;
-  --radius-lg: 14px;
-  --radius-xl: 18px;
+  --radius-lg: 18px;
+  --radius-xl: 24px;
 
   --space-1: 4px;
   --space-2: 8px;
@@ -53,6 +53,14 @@
 
   --sidebar-w: 244px;
   --topbar-h: 56px;
+
+  /* glass theme */
+  --app-gradient: linear-gradient(135deg, #C9C2F5 0%, #E4DFF8 45%, #F6DCE8 100%);
+  --glass:      rgba(255, 255, 255, 0.55);
+  --glass-2:    rgba(255, 255, 255, 0.35);
+  --glass-brd:  rgba(255, 255, 255, 0.65);
+  --glass-blur: 18px;
+  --frame-gap:  28px;
 }
 
 [data-theme="dark"] {
