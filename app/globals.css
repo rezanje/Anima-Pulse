@@ -409,6 +409,11 @@ a { color: var(--accent); text-decoration: none; }
   background: #FFFFFF;
   color: var(--accent-deep);
 }
+.card-clock.is-in .card-clock-left .card-clock-time .mono-num { color: #FFFFFF; }
+.card-clock-left .btn-primary:hover:not(:disabled) {
+  background: #F2F0FD;
+  color: var(--accent-deep);
+}
 .card-clock-time {
   display: flex;
   flex-direction: column;
