@@ -388,6 +388,7 @@ a { color: var(--accent); text-decoration: none; }
   align-items: stretch;
   padding: 0;
   overflow: hidden;
+  gap: 0;
 }
 .card-clock-left {
   padding: var(--space-5) var(--space-6);
