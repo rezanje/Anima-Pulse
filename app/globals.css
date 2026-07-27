@@ -97,6 +97,7 @@
 * { box-sizing: border-box; }
 html, body { margin: 0; padding: 0; height: 100%; }
 body {
+  display: flow-root;
   font-family: var(--font-sans);
   background: var(--app-gradient);
   background-attachment: fixed;
