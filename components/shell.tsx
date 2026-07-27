@@ -9,6 +9,7 @@ import { usePathname, useRouter } from 'next/navigation';
 import { I } from '@/components/icons';
 import { BrandMark, Avatar } from '@/components/widgets';
 import { DevSwitch } from '@/components/dev-switch';
+import { FeedbackDrawer } from '@/components/feedback-drawer';
 import { ROLE_LABEL } from '@/lib/roles';
 import { can, type Action } from '@/lib/rbac';
 import { apiPost } from '@/lib/client';
@@ -44,10 +45,15 @@ const TITLES: Record<string, string> = {
   '/settings': 'Settings',
 };
 
-export function AppShell({ user, role, cloudMode, children }: { user: User; role: Role; cloudMode: boolean; children: React.ReactNode }) {
+export function AppShell({ user, role, cloudMode, newFeedback = 0, children }: {
+  user: User; role: Role; cloudMode: boolean; newFeedback?: number; children: React.ReactNode;
+}) {
   const pathname = usePathname();
   const router = useRouter();
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
+  const [feedbackOpen, setFeedbackOpen] = useState(false);
+  const [feedbackCount, setFeedbackCount] = useState(newFeedback);
+  const canTriage = can(role, 'feedback-manage');
 
   const nav = NAV.filter((n) => can(role, n.action));
   const isActive = (href: string) => pathname === href || pathname.startsWith(href + '/');
@@ -80,6 +86,18 @@ export function AppShell({ user, role, cloudMode, children }: { user: User; role
               {item.badge && <span className="nav-badge">{I.plus}</span>}
             </Link>
           ))}
+
+          {can(role, 'feedback-submit') && (
+            <button
+              type="button"
+              className="nav-item nav-item-btn"
+              onClick={() => { setFeedbackOpen(true); setMobileNavOpen(false); }}
+            >
+              <span className="nav-icon">{I.megaphone}</span>
+              <span className="nav-label">Lapor &amp; Masukan</span>
+              {canTriage && feedbackCount > 0 && <span className="nav-count">{feedbackCount}</span>}
+            </button>
+          )}
         </nav>
 
         <div className="sidebar-bottom">
@@ -122,6 +140,14 @@ export function AppShell({ user, role, cloudMode, children }: { user: User; role
           ))}
         </nav>
       </main>
+
+      {feedbackOpen && (
+        <FeedbackDrawer
+          canManage={canTriage}
+          onClose={() => setFeedbackOpen(false)}
+          onCountChange={(d) => setFeedbackCount((c) => Math.max(0, c + d))}
+        />
+      )}
 
       {!cloudMode && <DevSwitch role={role} />}
     </div>

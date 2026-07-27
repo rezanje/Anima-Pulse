@@ -9,6 +9,7 @@ import type {
   Repo, User, Role, Attendance, Submission, NewSubmission, Kol, NewKol,
   KolGrowthEntry, VaultItem, NewVaultItem, AuditLog, ErTargets, TeamSummaryRow,
   ContentPlan, NewContentPlan, Pillar, NewPillar,
+  FeedbackReport, NewFeedbackReport, FeedbackStatus,
 } from './types';
 import { calcER, avgOf, trendDelta, attendanceStatus } from '@/lib/er';
 
@@ -35,6 +36,7 @@ const toUser = (r: any): User => ({
 });
 const toAtt = (r: any): Attendance => ({ id: r.id, userId: r.user_id, date: r.date, clockInAt: r.clock_in_at, clockOutAt: r.clock_out_at, status: r.status, ipAddress: r.ip_address });
 const toSub = (r: any): Submission => ({ id: r.id, userId: r.user_id, url: r.url, platform: r.platform, title: r.title, views: r.views, likes: r.likes, comments: r.comments, shares: r.shares, followers: r.followers_at_post, er: Number(r.er_rate), submittedAt: r.submitted_at, editableUntil: r.editable_until, pillarId: r.pillar_id ?? null });
+const toFeedback = (r: any, userName: string): FeedbackReport => ({ id: r.id, userId: r.user_id, userName, type: r.type, urgency: r.urgency, description: r.description, page: r.page ?? '', status: r.status, createdAt: r.created_at });
 const toPillar = (r: any): Pillar => ({ id: r.id, name: r.name, description: r.description ?? '', exampleAngle: r.example_angle ?? undefined, isActive: r.is_active, createdBy: r.created_by ?? undefined, createdAt: r.created_at ?? undefined });
 const toKol = (r: any): Kol => ({ id: r.id, name: r.name, handle: r.handle, platform: r.platform, niche: r.niche ?? [], followers: r.followers, avgViews: r.avg_views, avgER: Number(r.avg_er), ratePerContent: Number(r.rate_per_content), status: r.status, contact: r.contact ?? { wa: '', email: '' }, notes: r.notes ?? '', createdBy: r.created_by, isDeleted: r.is_deleted });
 const toGrowth = (r: any): KolGrowthEntry => ({ id: r.id, kolId: r.kol_id, date: r.recorded_date, followers: r.followers_count, recordedBy: r.recorded_by });
@@ -395,6 +397,41 @@ export class SupabaseRepo implements Repo {
     // content_submissions.pillar_id is `on delete set null` — tagged submissions survive
     const { error } = await this.db.from('content_pillars').delete().eq('id', id);
     if (error) throw new Error(error.message);
+  }
+
+  // ---------- feedback ----------
+  async listFeedback(q: { userId?: string } = {}) {
+    let query = this.db.from('feedback_reports').select('*').order('created_at', { ascending: false });
+    if (q.userId) query = query.eq('user_id', q.userId);
+    const { data } = await query;
+    const rows = data ?? [];
+    if (rows.length === 0) return [];
+    // Resolve reporter names in one extra query rather than a PostgREST embed,
+    // which would depend on the FK constraint's generated name.
+    const names = new Map((await this.listUsers()).map((u) => [u.id, u.name]));
+    return rows.map((r: any) => toFeedback(r, names.get(r.user_id) ?? '—'));
+  }
+
+  async createFeedback(f: NewFeedbackReport & { userId: string }) {
+    const { data, error } = await this.db.from('feedback_reports').insert({
+      user_id: f.userId, type: f.type, urgency: f.urgency,
+      description: f.description, page: f.page, status: 'baru',
+    }).select('*').single();
+    if (error) throw new Error(error.message);
+    const user = await this.getUser(f.userId);
+    return toFeedback(data, user?.name ?? '—');
+  }
+
+  async updateFeedbackStatus(id: string, status: FeedbackStatus) {
+    const { data, error } = await this.db.from('feedback_reports').update({ status }).eq('id', id).select('*').single();
+    if (error) throw new Error('not_found');
+    const user = await this.getUser(data.user_id);
+    return toFeedback(data, user?.name ?? '—');
+  }
+
+  async countNewFeedback() {
+    const { count } = await this.db.from('feedback_reports').select('id', { count: 'exact', head: true }).eq('status', 'baru');
+    return count ?? 0;
   }
 
   // ---------- settings ----------

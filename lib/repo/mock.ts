@@ -8,6 +8,7 @@ import type {
   Repo, User, Role, Attendance, AttendanceStatus, Submission, NewSubmission,
   Kol, NewKol, KolGrowthEntry, VaultItem, NewVaultItem, AuditLog, ErTargets, TeamSummaryRow,
   ContentPlan, NewContentPlan, Pillar, NewPillar,
+  FeedbackReport, NewFeedbackReport, FeedbackStatus,
 } from './types';
 import { calcER, attendanceStatus, avgOf, trendDelta } from '@/lib/er';
 import {
@@ -25,6 +26,7 @@ interface Store {
   vault: VaultItem[];
   contentPlans: ContentPlan[];
   pillars: Pillar[];
+  feedback: FeedbackReport[];
   audit: AuditLog[];
   erTargets: ErTargets;
 }
@@ -87,6 +89,7 @@ function seedStore(): Store {
     vault: structuredClone(SEED_VAULT),
     contentPlans: structuredClone(SEED_CONTENT_PLANS),
     pillars: structuredClone(SEED_PILLARS),
+    feedback: [],
     audit: [],
     erTargets: { ...SEED_ER_TARGETS },
   };
@@ -112,6 +115,9 @@ export class MockRepo implements Repo {
         }
         if (!parsed.pillars) {
           parsed.pillars = structuredClone(SEED_PILLARS);
+        }
+        if (!parsed.feedback) {
+          parsed.feedback = [];
         }
         return parsed;
       }
@@ -388,6 +394,41 @@ export class MockRepo implements Repo {
     // mirror the DB's `on delete set null` on content_submissions.pillar_id
     for (const s of this.s.submissions) if (s.pillarId === id) s.pillarId = null;
     this.save();
+  }
+
+  // ---------- feedback ----------
+  async listFeedback(q: { userId?: string } = {}) {
+    const rows = q.userId ? this.s.feedback.filter((f) => f.userId === q.userId) : this.s.feedback;
+    return [...rows].sort((a, b) => b.createdAt.localeCompare(a.createdAt));
+  }
+
+  async createFeedback(f: NewFeedbackReport & { userId: string }) {
+    const report: FeedbackReport = {
+      id: uid('fb'),
+      userId: f.userId,
+      userName: this.s.users.find((u) => u.id === f.userId)?.name ?? '—',
+      type: f.type,
+      urgency: f.urgency,
+      description: f.description,
+      page: f.page,
+      status: 'baru',
+      createdAt: new Date().toISOString(),
+    };
+    this.s.feedback.push(report);
+    this.save();
+    return report;
+  }
+
+  async updateFeedbackStatus(id: string, status: FeedbackStatus) {
+    const report = this.s.feedback.find((f) => f.id === id);
+    if (!report) throw new Error('not_found');
+    report.status = status;
+    this.save();
+    return report;
+  }
+
+  async countNewFeedback() {
+    return this.s.feedback.filter((f) => f.status === 'baru').length;
   }
 
   // ---------- settings ----------

@@ -66,6 +66,29 @@ export interface NewPillar {
   exampleAngle?: string;
 }
 
+export type FeedbackType = 'bug' | 'saran' | 'pertanyaan';
+export type FeedbackUrgency = 'rendah' | 'sedang' | 'tinggi';
+export type FeedbackStatus = 'baru' | 'diproses' | 'selesai' | 'ditolak';
+
+export interface FeedbackReport {
+  id: string;
+  userId: string;
+  userName: string; // resolved for the admin list; reporters already know who they are
+  type: FeedbackType;
+  urgency: FeedbackUrgency;
+  description: string;
+  page: string;
+  status: FeedbackStatus;
+  createdAt: string;
+}
+
+export interface NewFeedbackReport {
+  type: FeedbackType;
+  urgency: FeedbackUrgency;
+  description: string;
+  page: string;
+}
+
 export interface KolContact {
   wa: string;
   email: string;
@@ -277,6 +300,12 @@ export interface Repo {
   createPillar(p: NewPillar & { createdBy?: string }): Promise<Pillar>;
   updatePillar(id: string, patch: Partial<NewPillar> & { isActive?: boolean }): Promise<Pillar>; // throws 'not_found'
   deletePillar(id: string): Promise<void>; // submissions keep their tag as null
+
+  // feedback (any role reports a bug / suggestion / question; admin triages)
+  listFeedback(q?: { userId?: string }): Promise<FeedbackReport[]>;
+  createFeedback(f: NewFeedbackReport & { userId: string }): Promise<FeedbackReport>;
+  updateFeedbackStatus(id: string, status: FeedbackStatus): Promise<FeedbackReport>; // throws 'not_found'
+  countNewFeedback(): Promise<number>;
 
   // settings
   getErTargets(): Promise<ErTargets>;

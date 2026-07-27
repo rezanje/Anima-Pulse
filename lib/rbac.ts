@@ -21,7 +21,9 @@ export type Action =
   | 'audit-view'
   | 'tracker-view'
   | 'pillar-view'
-  | 'pillar-manage';
+  | 'pillar-manage'
+  | 'feedback-submit'
+  | 'feedback-manage';
 
 const M: Record<Action, Role[]> = {
   clock: ['staff', 'manager', 'admin', 'creator'],
@@ -41,6 +43,8 @@ const M: Record<Action, Role[]> = {
   'tracker-view': ['staff', 'manager', 'admin'], // creator excluded — no planning/strategy access
   'pillar-view': ['staff', 'manager', 'admin', 'creator'],
   'pillar-manage': ['manager', 'admin'],
+  'feedback-submit': ['staff', 'manager', 'admin', 'creator'], // everyone can reach the developer
+  'feedback-manage': ['admin'], // only the developer triages
 };
 
 export function can(role: Role, action: Action): boolean {
