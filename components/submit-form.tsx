@@ -19,6 +19,7 @@ import { avgOf } from '@/lib/er';
 import { fmtNum } from '@/lib/format';
 
 const ER_TARGETS_DEFAULT = { tiktok: 7, instagram: 4 };
+type ErTargetMap = typeof ER_TARGETS_DEFAULT;
 
 export function SubmitForm() {
   const [activeTab, setActiveTab] = useState<'form' | 'history'>('form');
@@ -29,9 +30,13 @@ export function SubmitForm() {
   const [toast, setToast] = useState('');
   const [serverError, setServerError] = useState<string | null>(null);
   const [pillars, setPillars] = useState<Pillar[]>([]);
+  const [erTargets, setErTargets] = useState<ErTargetMap>(ER_TARGETS_DEFAULT);
 
   useEffect(() => {
     apiGet<Pillar[]>('/pillars').then(setPillars).catch(() => setPillars([]));
+    apiGet<ErTargetMap>('/settings/er-targets')
+      .then(setErTargets)
+      .catch(() => setErTargets(ER_TARGETS_DEFAULT));
   }, []);
 
   const {
@@ -68,7 +73,7 @@ export function SubmitForm() {
     return calcER({ likes: l, comments: c, shares: sh, views: v });
   }, [wViews, wLikes, wComments, wShares]);
 
-  const target = ER_TARGETS_DEFAULT[wPlatform as 'tiktok' | 'instagram'] ?? 7;
+  const target = erTargets[wPlatform as 'tiktok' | 'instagram'] ?? ER_TARGETS_DEFAULT.tiktok;
   const erVerdict = er == null ? null : (er >= target ? 'good' : er >= target * 0.7 ? 'mid' : 'low');
 
   const urlValid = useMemo(() => {

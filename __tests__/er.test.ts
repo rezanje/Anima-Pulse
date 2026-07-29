@@ -1,7 +1,16 @@
 import { describe, it, expect } from 'vitest';
-import { calcER, calcCPV, calcCPE, attendanceStatus, momGrowth, trendDelta } from '@/lib/er';
+import { calcER, calcCPV, calcCPE, attendanceStatus, momGrowth, trendDelta, blendedErTarget } from '@/lib/er';
 
 describe('er', () => {
+  it('blendedErTarget follows the platform mix of the submissions', () => {
+    const t = { tiktok: 6, instagram: 4 };
+    expect(blendedErTarget([], t)).toEqual({ value: 6, label: 'benchmark TikTok' });
+    expect(blendedErTarget(['instagram', 'instagram'], t)).toEqual({ value: 4, label: 'benchmark Instagram' });
+    expect(blendedErTarget(['tiktok', 'instagram'], t)).toEqual({ value: 5, label: 'benchmark campuran' });
+    // weighted by submission count, not by distinct platform
+    expect(blendedErTarget(['tiktok', 'tiktok', 'tiktok', 'instagram'], t).value).toBe(5.5);
+  });
+
   it('ER = (likes+comments+shares)/views*100', () => {
     expect(calcER({ likes: 100, comments: 50, shares: 50, views: 1000 })).toBe(20);
   });

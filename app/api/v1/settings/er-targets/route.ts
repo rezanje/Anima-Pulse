@@ -1,7 +1,7 @@
 import { z } from 'zod';
 import { getRepo } from '@/lib/repo';
 import { handle, ok, fail, clientIp } from '@/lib/http';
-import { requirePermission } from '@/lib/auth/guard';
+import { requirePermission, requireSession } from '@/lib/auth/guard';
 import { recordAudit } from '@/lib/audit';
 
 const targetsSchema = z.object({
@@ -11,7 +11,8 @@ const targetsSchema = z.object({
 
 export async function GET() {
   return handle(async () => {
-    await requirePermission('er-target-set');
+    // ponytail: read is for every logged-in user (submit form needs it); only PUT stays admin-only
+    await requireSession();
     return ok(await getRepo().getErTargets());
   });
 }

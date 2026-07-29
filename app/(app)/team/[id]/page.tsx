@@ -1,7 +1,7 @@
 import { notFound, redirect } from 'next/navigation';
 import { getSession } from '@/lib/auth/session';
 import { getRepo } from '@/lib/repo';
-import { avgOf } from '@/lib/er';
+import { avgOf, blendedErTarget } from '@/lib/er';
 import { DashboardClient } from '@/components/dashboard-client';
 
 export const metadata = { title: 'Dashboard Anggota Tim · Anima Pulse' };
@@ -33,6 +33,7 @@ export default async function TeamUserDashboardPage({ params }: { params: { id: 
   ]);
 
   const avgER = avgOf(submissions.map((s) => s.er));
+  const erTarget = blendedErTarget(submissions.map((s) => s.platform), erTargets);
   const bestContent = submissions.length
     ? submissions.reduce((best, s) => (s.er > best.er ? s : best), submissions[0])
     : null;
@@ -45,7 +46,7 @@ export default async function TeamUserDashboardPage({ params }: { params: { id: 
       attPct={attPct}
       erHistory={erHistoryData}
       avgER={avgER}
-      erTargets={erTargets}
+      erTarget={erTarget}
       totalContent={submissions.length}
       bestContent={bestContent}
       isOwnDashboard={false} // Renders read-only dashboard

@@ -120,6 +120,10 @@ a { color: var(--accent); text-decoration: none; }
 .app-shell {
   display: grid;
   grid-template-columns: var(--sidebar-w) 1fr;
+  /* The implicit row defaults to auto = content height, so the shell's own
+     overflow:hidden clipped everything below the fold and .main-scroll never
+     got a bounded height to scroll inside. Pin the row to the shell. */
+  grid-template-rows: minmax(0, 1fr);
   height: calc(100vh - (var(--frame-gap) * 2));
   margin: var(--frame-gap);
   border-radius: 28px;
@@ -250,6 +254,7 @@ a { color: var(--accent); text-decoration: none; }
   display: flex;
   flex-direction: column;
   min-width: 0;
+  min-height: 0; /* let .main-scroll shrink below its content height */
 }
 .topbar {
   height: var(--topbar-h);
@@ -302,6 +307,7 @@ a { color: var(--accent); text-decoration: none; }
 
 .main-scroll {
   flex: 1;
+  min-height: 0;
   overflow-y: auto;
   padding: var(--space-6) var(--space-8) var(--space-10);
 }

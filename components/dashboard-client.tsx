@@ -5,7 +5,7 @@
 // ============================================================
 import { useState, useCallback } from 'react';
 import Link from 'next/link';
-import type { User, Role, Attendance, ErTargets, Submission } from '@/lib/repo/types';
+import type { User, Role, Attendance, Submission } from '@/lib/repo/types';
 import { apiPost } from '@/lib/client';
 import { fmtDateWIB, fmtTimeWIB, fmtNum } from '@/lib/format';
 import { avgOf, trendDelta } from '@/lib/er';
@@ -26,7 +26,7 @@ interface Props {
   attPct: { ontime: number; late: number; absent: number };
   erHistory: number[];
   avgER: number;
-  erTargets: ErTargets;
+  erTarget: { value: number; label: string };
   totalContent: number;
   bestContent: Submission | null;
   isOwnDashboard?: boolean;
@@ -39,7 +39,7 @@ export function DashboardClient({
   attPct,
   erHistory,
   avgER,
-  erTargets,
+  erTarget,
   totalContent,
   bestContent,
   isOwnDashboard = true,
@@ -49,7 +49,7 @@ export function DashboardClient({
   const [toast, setToast] = useState('');
 
   const isClockedIn = Boolean(attendance?.clockInAt);
-  const target = erTargets.tiktok;
+  const target = erTarget.value;
 
   // RAG indicator per US-003
   const erRag =
@@ -218,7 +218,7 @@ export function DashboardClient({
             <TrendDelta value={trend} />
           </div>
           <div className="er-target">
-            Target {target.toFixed(1)}% · benchmark TikTok
+            Target {target.toFixed(1)}% · {erTarget.label}
           </div>
           <div className="er-chart">
             <Sparkline data={erHistory} width={420} height={64} target={target} />

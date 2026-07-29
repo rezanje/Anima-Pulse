@@ -34,6 +34,27 @@ export function avgOf(nums: number[]): number {
   return nums.length ? +(nums.reduce((a, b) => a + b, 0) / nums.length).toFixed(2) : 0;
 }
 
+/**
+ * Target ER to compare against an average taken over `platforms` (one entry per
+ * submission). Mixed platforms → mean target over the same submissions, so the
+ * target and the average are measured the same way. Empty → TikTok fallback.
+ */
+export function blendedErTarget(
+  platforms: ('tiktok' | 'instagram')[],
+  targets: { tiktok: number; instagram: number },
+): { value: number; label: string } {
+  const known = platforms.filter((p) => p === 'tiktok' || p === 'instagram');
+  if (!known.length) return { value: targets.tiktok, label: 'benchmark TikTok' };
+  const uniq = [...new Set(known)];
+  if (uniq.length === 1) {
+    return {
+      value: targets[uniq[0]],
+      label: uniq[0] === 'tiktok' ? 'benchmark TikTok' : 'benchmark Instagram',
+    };
+  }
+  return { value: avgOf(known.map((p) => targets[p])), label: 'benchmark campuran' };
+}
+
 /** Compare avg of last 4 vs first 4 ER history points → % delta. */
 export function trendDelta(history: number[]): number {
   if (history.length < 8) return 0;
